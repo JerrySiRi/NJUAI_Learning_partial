@@ -1,0 +1,485 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ASFLAGS	bootloader/Makefile	/^ASFLAGS = -m32$/;"	m
+ASFLAGS	kernel/Makefile	/^ASFLAGS = -m32$/;"	m
+BCFILES	bootloader/Makefile	/^BCFILES = $(shell find .\/ -name "*.c")$/;"	m
+BLUE_SCREEN_TEXT	kernel/lib/abort.c	21;"	d	file:
+BOBJS	bootloader/Makefile	/^BOBJS = $(BSFILES:.S=.o) $(BCFILES:.c=.o)$/;"	m
+BOOT_H	bootloader/boot.h	2;"	d
+BSFILES	bootloader/Makefile	/^BSFILES = $(shell find .\/ -name "*.S")$/;"	m
+CC	app/Makefile	/^CC = gcc$/;"	m
+CC	bootloader/Makefile	/^CC = gcc$/;"	m
+CC	kernel/Makefile	/^CC = gcc$/;"	m
+CFLAGS	app/Makefile	/^CFLAGS = -m32 -march=i386 -static \\$/;"	m
+CFLAGS	bootloader/Makefile	/^CFLAGS = -m32 -march=i386 -static \\$/;"	m
+CFLAGS	kernel/Makefile	/^CFLAGS = -m32 -march=i386 -static \\$/;"	m
+DPL_KERN	kernel/include/x86/memory.h	4;"	d
+DPL_USER	kernel/include/x86/memory.h	5;"	d
+Device	kernel/include/x86/memory.h	/^struct Device {$/;"	s
+Device	kernel/include/x86/memory.h	/^typedef struct Device Device;$/;"	t	typeref:struct:Device
+ELFHeader	bootloader/boot.h	/^struct ELFHeader {$/;"	s
+ELFHeader	kernel/include/x86/io.h	/^struct ELFHeader {$/;"	s
+FALSE	kernel/include/common/const.h	5;"	d
+FREQ_8253	kernel/kernel/timer.c	5;"	d	file:
+GProtectFaultHandle	kernel/kernel/irqHandle.c	/^void GProtectFaultHandle(struct StackFrame *sf) {$/;"	f
+GateDescriptor	kernel/include/x86/memory.h	/^struct GateDescriptor {$/;"	s
+HZ	kernel/kernel/timer.c	6;"	d	file:
+INTERRUPT_GATE_32	kernel/kernel/idt.c	4;"	d	file:
+IRQ_SLAVE	kernel/kernel/i8259.c	5;"	d	file:
+K0_P	kernel/kernel/keyboard.c	15;"	d	file:
+K1_P	kernel/kernel/keyboard.c	6;"	d	file:
+K2_P	kernel/kernel/keyboard.c	7;"	d	file:
+K3_P	kernel/kernel/keyboard.c	8;"	d	file:
+K4_P	kernel/kernel/keyboard.c	9;"	d	file:
+K5_P	kernel/kernel/keyboard.c	10;"	d	file:
+K6_P	kernel/kernel/keyboard.c	11;"	d	file:
+K7_P	kernel/kernel/keyboard.c	12;"	d	file:
+K8_P	kernel/kernel/keyboard.c	13;"	d	file:
+K9_P	kernel/kernel/keyboard.c	14;"	d	file:
+KA_P	kernel/kernel/keyboard.c	34;"	d	file:
+KBAC_P	kernel/kernel/keyboard.c	18;"	d	file:
+KBSL_P	kernel/kernel/keyboard.c	47;"	d	file:
+KBTI_P	kernel/kernel/keyboard.c	45;"	d	file:
+KB_P	kernel/kernel/keyboard.c	52;"	d	file:
+KCAP_P	kernel/kernel/keyboard.c	62;"	d	file:
+KCFILES	kernel/Makefile	/^KCFILES = $(shell find .\/ -name "*.c")$/;"	m
+KCOM_P	kernel/kernel/keyboard.c	55;"	d	file:
+KC_P	kernel/kernel/keyboard.c	50;"	d	file:
+KDOT_P	kernel/kernel/keyboard.c	56;"	d	file:
+KD_P	kernel/kernel/keyboard.c	36;"	d	file:
+KENT_P	kernel/kernel/keyboard.c	32;"	d	file:
+KEQU_P	kernel/kernel/keyboard.c	17;"	d	file:
+KESC_P	kernel/kernel/keyboard.c	5;"	d	file:
+KEYTABLE_SIZE	kernel/kernel/keyboard.c	93;"	d	file:
+KE_P	kernel/kernel/keyboard.c	22;"	d	file:
+KF10_P	kernel/kernel/keyboard.c	72;"	d	file:
+KF11_P	kernel/kernel/keyboard.c	88;"	d	file:
+KF12_P	kernel/kernel/keyboard.c	89;"	d	file:
+KF1_P	kernel/kernel/keyboard.c	63;"	d	file:
+KF2_P	kernel/kernel/keyboard.c	64;"	d	file:
+KF3_P	kernel/kernel/keyboard.c	65;"	d	file:
+KF4_P	kernel/kernel/keyboard.c	66;"	d	file:
+KF5_P	kernel/kernel/keyboard.c	67;"	d	file:
+KF6_P	kernel/kernel/keyboard.c	68;"	d	file:
+KF7_P	kernel/kernel/keyboard.c	69;"	d	file:
+KF8_P	kernel/kernel/keyboard.c	70;"	d	file:
+KF9_P	kernel/kernel/keyboard.c	71;"	d	file:
+KFSL_P	kernel/kernel/keyboard.c	57;"	d	file:
+KF_P	kernel/kernel/keyboard.c	37;"	d	file:
+KG_P	kernel/kernel/keyboard.c	38;"	d	file:
+KH_P	kernel/kernel/keyboard.c	39;"	d	file:
+KI_P	kernel/kernel/keyboard.c	27;"	d	file:
+KJ_P	kernel/kernel/keyboard.c	40;"	d	file:
+KKP0_P	kernel/kernel/keyboard.c	86;"	d	file:
+KKP1_P	kernel/kernel/keyboard.c	83;"	d	file:
+KKP2_P	kernel/kernel/keyboard.c	84;"	d	file:
+KKP3_P	kernel/kernel/keyboard.c	85;"	d	file:
+KKP4_P	kernel/kernel/keyboard.c	79;"	d	file:
+KKP5_P	kernel/kernel/keyboard.c	80;"	d	file:
+KKP6_P	kernel/kernel/keyboard.c	81;"	d	file:
+KKP7_P	kernel/kernel/keyboard.c	75;"	d	file:
+KKP8_P	kernel/kernel/keyboard.c	76;"	d	file:
+KKP9_P	kernel/kernel/keyboard.c	77;"	d	file:
+KKPD_P	kernel/kernel/keyboard.c	87;"	d	file:
+KKPM_P	kernel/kernel/keyboard.c	78;"	d	file:
+KKPP_P	kernel/kernel/keyboard.c	82;"	d	file:
+KKPS_P	kernel/kernel/keyboard.c	59;"	d	file:
+KK_P	kernel/kernel/keyboard.c	41;"	d	file:
+KLAL_P	kernel/kernel/keyboard.c	60;"	d	file:
+KLBR_P	kernel/kernel/keyboard.c	30;"	d	file:
+KLCO_P	kernel/kernel/keyboard.c	33;"	d	file:
+KLSH_P	kernel/kernel/keyboard.c	46;"	d	file:
+KL_P	kernel/kernel/keyboard.c	42;"	d	file:
+KMIN_P	kernel/kernel/keyboard.c	16;"	d	file:
+KM_P	kernel/kernel/keyboard.c	54;"	d	file:
+KNLO_P	kernel/kernel/keyboard.c	73;"	d	file:
+KN_P	kernel/kernel/keyboard.c	53;"	d	file:
+KOBJS	kernel/Makefile	/^KOBJS = $(KCFILES:.c=.o) $(KSFILES:.S=.o)$/;"	m
+KO_P	kernel/kernel/keyboard.c	28;"	d	file:
+KP_P	kernel/kernel/keyboard.c	29;"	d	file:
+KQ_P	kernel/kernel/keyboard.c	20;"	d	file:
+KRBR_P	kernel/kernel/keyboard.c	31;"	d	file:
+KRSH_P	kernel/kernel/keyboard.c	58;"	d	file:
+KR_P	kernel/kernel/keyboard.c	23;"	d	file:
+KSCO_P	kernel/kernel/keyboard.c	43;"	d	file:
+KSEL	kernel/include/x86/memory.h	24;"	d
+KSFILES	kernel/Makefile	/^KSFILES = $(shell find .\/ -name "*.S")$/;"	m
+KSLO_P	kernel/kernel/keyboard.c	74;"	d	file:
+KSPA_P	kernel/kernel/keyboard.c	61;"	d	file:
+KSQU_P	kernel/kernel/keyboard.c	44;"	d	file:
+KS_P	kernel/kernel/keyboard.c	35;"	d	file:
+KTAB_P	kernel/kernel/keyboard.c	19;"	d	file:
+KT_P	kernel/kernel/keyboard.c	24;"	d	file:
+KU_P	kernel/kernel/keyboard.c	26;"	d	file:
+KV_P	kernel/kernel/keyboard.c	51;"	d	file:
+KW_P	kernel/kernel/keyboard.c	21;"	d	file:
+KX_P	kernel/kernel/keyboard.c	49;"	d	file:
+KY_P	kernel/kernel/keyboard.c	25;"	d	file:
+KZ_P	kernel/kernel/keyboard.c	48;"	d	file:
+LCFILES	app/Makefile	/^LCFILES = $(shell find ..\/lib -name "*.c")$/;"	m
+LD	app/Makefile	/^LD = ld$/;"	m
+LD	bootloader/Makefile	/^LD = ld$/;"	m
+LD	kernel/Makefile	/^LD = ld$/;"	m
+LDFLAGS	app/Makefile	/^LDFLAGS = -m elf_i386$/;"	m
+LDFLAGS	bootloader/Makefile	/^LDFLAGS = -m elf_i386$/;"	m
+LDFLAGS	kernel/Makefile	/^LDFLAGS = -m elf_i386$/;"	m
+ListHead	kernel/include/x86/memory.h	/^struct ListHead {$/;"	s
+MAX_BUFFER_SIZE	lib/lib.h	22;"	d
+MAX_COL	kernel/include/device/vga.h	5;"	d
+MAX_DEV_NUM	kernel/include/x86/memory.h	59;"	d
+MAX_KEYBUFFER_SIZE	kernel/include/device/keyboard.h	4;"	d
+MAX_PCB_NUM	kernel/include/x86/memory.h	69;"	d
+MAX_ROW	kernel/include/device/vga.h	4;"	d
+MAX_SEM_NUM	kernel/include/x86/memory.h	50;"	d
+MAX_STACK_SIZE	kernel/include/x86/memory.h	68;"	d
+MAX_TIME_COUNT	kernel/include/x86/memory.h	76;"	d
+NR_IRQ	kernel/include/x86/cpu.h	30;"	d
+NR_SEGMENTS	kernel/include/x86/memory.h	18;"	d
+NULL	kernel/include/common/const.h	7;"	d
+PORT_PIC_MASTER	kernel/kernel/i8259.c	3;"	d	file:
+PORT_PIC_SLAVE	kernel/kernel/i8259.c	4;"	d	file:
+ProcessTable	kernel/include/x86/memory.h	/^struct ProcessTable {$/;"	s
+ProcessTable	kernel/include/x86/memory.h	/^typedef struct ProcessTable ProcessTable;$/;"	t	typeref:struct:ProcessTable
+ProgramHeader	bootloader/boot.h	/^struct ProgramHeader {$/;"	s
+ProgramHeader	kernel/include/x86/io.h	/^struct ProgramHeader {$/;"	s
+QEMU	Makefile	/^QEMU = qemu-system-i386$/;"	m
+SECTSIZE	bootloader/boot.c	3;"	d	file:
+SECTSIZE	kernel/kernel/disk.c	4;"	d	file:
+SEG	kernel/include/x86/memory.h	115;"	d
+SEG16	kernel/include/x86/memory.h	120;"	d
+SEG_KCODE	kernel/include/x86/memory.h	19;"	d
+SEG_KDATA	kernel/include/x86/memory.h	20;"	d
+SEG_TSS	kernel/include/x86/memory.h	21;"	d
+SEM_DESTROY	kernel/kernel/irqHandle.c	18;"	d	file:
+SEM_DESTROY	lib/lib.h	20;"	d
+SEM_INIT	kernel/kernel/irqHandle.c	15;"	d	file:
+SEM_INIT	lib/lib.h	17;"	d
+SEM_POST	kernel/kernel/irqHandle.c	17;"	d	file:
+SEM_POST	lib/lib.h	19;"	d
+SEM_WAIT	kernel/kernel/irqHandle.c	16;"	d	file:
+SEM_WAIT	lib/lib.h	18;"	d
+SERIAL_PORT	kernel/kernel/serial.c	4;"	d	file:
+STATE_BLOCKED	kernel/include/x86/memory.h	73;"	d
+STATE_DEAD	kernel/include/x86/memory.h	74;"	d
+STATE_RUNNABLE	kernel/include/x86/memory.h	71;"	d
+STATE_RUNNING	kernel/include/x86/memory.h	72;"	d
+STA_R	kernel/include/x86/memory.h	10;"	d
+STA_W	kernel/include/x86/memory.h	9;"	d
+STA_X	kernel/include/x86/memory.h	8;"	d
+STD_IN	kernel/kernel/irqHandle.c	13;"	d	file:
+STD_IN	lib/lib.h	15;"	d
+STD_OUT	kernel/kernel/irqHandle.c	12;"	d	file:
+STD_OUT	lib/lib.h	14;"	d
+STS_IG32	kernel/include/x86/memory.h	14;"	d
+STS_T32A	kernel/include/x86/memory.h	13;"	d
+STS_TG32	kernel/include/x86/memory.h	15;"	d
+SYS_EXEC	kernel/kernel/irqHandle.c	7;"	d	file:
+SYS_EXEC	lib/lib.h	9;"	d
+SYS_EXIT	kernel/kernel/irqHandle.c	9;"	d	file:
+SYS_EXIT	lib/lib.h	11;"	d
+SYS_FORK	kernel/kernel/irqHandle.c	6;"	d	file:
+SYS_FORK	lib/lib.h	8;"	d
+SYS_READ	kernel/kernel/irqHandle.c	5;"	d	file:
+SYS_READ	lib/lib.h	7;"	d
+SYS_SEM	kernel/kernel/irqHandle.c	10;"	d	file:
+SYS_SEM	lib/lib.h	12;"	d
+SYS_SLEEP	kernel/kernel/irqHandle.c	8;"	d	file:
+SYS_SLEEP	lib/lib.h	10;"	d
+SYS_WRITE	kernel/kernel/irqHandle.c	4;"	d	file:
+SYS_WRITE	lib/lib.h	6;"	d
+SegDesc	kernel/include/x86/memory.h	/^struct SegDesc {$/;"	s
+SegDesc	kernel/include/x86/memory.h	/^typedef struct SegDesc SegDesc;$/;"	t	typeref:struct:SegDesc
+Semaphore	kernel/include/x86/memory.h	/^struct Semaphore {$/;"	s
+Semaphore	kernel/include/x86/memory.h	/^typedef struct Semaphore Semaphore;$/;"	t	typeref:struct:Semaphore
+StackFrame	kernel/include/x86/memory.h	/^struct StackFrame {$/;"	s
+TIMER_PORT	kernel/kernel/timer.c	4;"	d	file:
+TRAP_GATE_32	kernel/kernel/idt.c	5;"	d	file:
+TRUE	kernel/include/common/const.h	4;"	d
+TSS	kernel/include/x86/memory.h	/^struct TSS {$/;"	s
+TSS	kernel/include/x86/memory.h	/^typedef struct TSS TSS;$/;"	t	typeref:struct:TSS
+UCFILES	app/Makefile	/^UCFILES = $(shell find .\/ -name "*.c")$/;"	m
+UOBJS	app/Makefile	/^UOBJS = $(UCFILES:.c=.o) $(LCFILES:.c=.o)$/;"	m
+USEL	kernel/include/x86/memory.h	25;"	d
+__ASSERT_H__	kernel/include/common/assert.h	2;"	d
+__COMMON_H__	kernel/include/common.h	2;"	d
+__CONST_H__	kernel/include/common/const.h	2;"	d
+__DEVICE_H__	kernel/include/device.h	2;"	d
+__DISK_H__	kernel/include/device/disk.h	2;"	d
+__IRQ_H__	kernel/include/x86/irq.h	2;"	d
+__KEYBOARD_H__	kernel/include/device/keyboard.h	2;"	d
+__SERIAL_H__	kernel/include/device/serial.h	2;"	d
+__TIMER_H__	kernel/include/device/timer.h	2;"	d
+__TYPES_H__	kernel/include/common/types.h	2;"	d
+__TYPES_H__	lib/types.h	2;"	d
+__VGA_H__	kernel/include/device/vga.h	2;"	d
+__X86_CPU_H__	kernel/include/x86/cpu.h	2;"	d
+__X86_H__	kernel/include/x86.h	2;"	d
+__X86_IO_H__	kernel/include/x86/io.h	2;"	d
+__X86_MEMORY_H__	kernel/include/x86/memory.h	2;"	d
+__lib_h__	lib/lib.h	2;"	d
+abort	kernel/lib/abort.c	/^int abort(const char *fname, int line) {$/;"	f
+align	bootloader/boot.h	/^	unsigned int align;$/;"	m	struct:ProgramHeader
+align	kernel/include/x86/io.h	/^	unsigned int align;$/;"	m	struct:ProgramHeader
+append	kernel/lib/abort.c	/^static void append(char **p, const char *str) {$/;"	f	file:
+asmDoIrq	kernel/kernel/doIrq.S	/^asmDoIrq:$/;"	l
+assert	kernel/include/common/assert.h	7;"	d
+avl	kernel/include/x86/memory.h	/^	uint32_t avl : 1;        \/\/ Unused (available for software use)$/;"	m	struct:SegDesc
+base_15_0	kernel/include/x86/memory.h	/^	uint32_t base_15_0 : 16; \/\/ Low bits of segment base address$/;"	m	struct:SegDesc
+base_23_16	kernel/include/x86/memory.h	/^	uint32_t base_23_16 : 8; \/\/ Middle bits of segment base address$/;"	m	struct:SegDesc
+base_31_24	kernel/include/x86/memory.h	/^	uint32_t base_31_24 : 8; \/\/ High bits of segment base address$/;"	m	struct:SegDesc
+blocked	kernel/include/x86/memory.h	/^	struct ListHead blocked; \/\/ sempahore, device, file blocked on$/;"	m	struct:ProcessTable	typeref:struct:ProcessTable::ListHead
+boolean	lib/types.h	/^typedef unsigned char  boolean;$/;"	t
+bootMain	bootloader/boot.c	/^void bootMain(void) {$/;"	f
+bufferHead	kernel/kernel/keyboard.c	/^int bufferHead;$/;"	v
+bufferTail	kernel/kernel/keyboard.c	/^int bufferTail;$/;"	v
+clearScreen	kernel/kernel/vga.c	/^void clearScreen() {$/;"	f
+cr3	kernel/include/x86/memory.h	/^			uint32_t cr3, eip, eflags, eax, ecx, edx, ebx, esp, ebp, esi, edi;$/;"	m	struct:TSS::__anon1::__anon3
+cs	kernel/include/x86/memory.h	/^			uint32_t es, cs, ss, ds, fs, gs, ldt;$/;"	m	struct:TSS::__anon1::__anon3
+cs	kernel/include/x86/memory.h	/^	uint32_t eip, cs, eflags, esp, ss;$/;"	m	struct:StackFrame
+current	kernel/kernel/kvm.c	/^int current;                    \/\/ current process$/;"	v
+db	kernel/include/x86/memory.h	/^	uint32_t db : 1;         \/\/ 0 = 16-bit segment, 1 = 32-bit segment$/;"	m	struct:SegDesc
+dec2Str	lib/syscall.c	/^int dec2Str(int decimal, char *buffer, int size, int count) {$/;"	f
+dev	kernel/kernel/kvm.c	/^Device dev[MAX_DEV_NUM];$/;"	v
+disableInterrupt	kernel/include/x86/cpu.h	/^static inline void disableInterrupt(void) {$/;"	f
+displayClear	kernel/kernel/vga.c	/^static int displayClear = 0;$/;"	v	file:
+displayCol	kernel/kernel/vga.c	/^int displayCol = 0;$/;"	v
+displayMem	kernel/kernel/vga.c	/^static uint16_t displayMem[MAX_ROW*MAX_COL];$/;"	v	file:
+displayMessage	kernel/lib/abort.c	/^static void displayMessage(const char *file, int line) {$/;"	f	file:
+displayRow	kernel/kernel/vga.c	/^int displayRow = 0; $/;"	v
+dontcare	kernel/include/x86/memory.h	/^			char dontcare[88];$/;"	m	struct:TSS::__anon1::__anon2
+dpl	kernel/include/x86/memory.h	/^	uint32_t dpl : 2;        \/\/ Descriptor Privilege Level$/;"	m	struct:SegDesc
+ds	kernel/include/x86/memory.h	/^			uint32_t es, cs, ss, ds, fs, gs, ldt;$/;"	m	struct:TSS::__anon1::__anon3
+ds	kernel/include/x86/memory.h	/^	uint32_t gs, fs, es, ds;$/;"	m	struct:StackFrame
+eax	kernel/include/x86/memory.h	/^			uint32_t cr3, eip, eflags, eax, ecx, edx, ebx, esp, ebp, esi, edi;$/;"	m	struct:TSS::__anon1::__anon3
+eax	kernel/include/x86/memory.h	/^	uint32_t edi, esi, ebp, xxx, ebx, edx, ecx, eax;$/;"	m	struct:StackFrame
+ebp	kernel/include/x86/memory.h	/^			uint32_t cr3, eip, eflags, eax, ecx, edx, ebx, esp, ebp, esi, edi;$/;"	m	struct:TSS::__anon1::__anon3
+ebp	kernel/include/x86/memory.h	/^	uint32_t edi, esi, ebp, xxx, ebx, edx, ecx, eax;$/;"	m	struct:StackFrame
+ebx	kernel/include/x86/memory.h	/^			uint32_t cr3, eip, eflags, eax, ecx, edx, ebx, esp, ebp, esi, edi;$/;"	m	struct:TSS::__anon1::__anon3
+ebx	kernel/include/x86/memory.h	/^	uint32_t edi, esi, ebp, xxx, ebx, edx, ecx, eax;$/;"	m	struct:StackFrame
+ecx	kernel/include/x86/memory.h	/^			uint32_t cr3, eip, eflags, eax, ecx, edx, ebx, esp, ebp, esi, edi;$/;"	m	struct:TSS::__anon1::__anon3
+ecx	kernel/include/x86/memory.h	/^	uint32_t edi, esi, ebp, xxx, ebx, edx, ecx, eax;$/;"	m	struct:StackFrame
+edi	kernel/include/x86/memory.h	/^			uint32_t cr3, eip, eflags, eax, ecx, edx, ebx, esp, ebp, esi, edi;$/;"	m	struct:TSS::__anon1::__anon3
+edi	kernel/include/x86/memory.h	/^	uint32_t edi, esi, ebp, xxx, ebx, edx, ecx, eax;$/;"	m	struct:StackFrame
+edx	kernel/include/x86/memory.h	/^			uint32_t cr3, eip, eflags, eax, ecx, edx, ebx, esp, ebp, esi, edi;$/;"	m	struct:TSS::__anon1::__anon3
+edx	kernel/include/x86/memory.h	/^	uint32_t edi, esi, ebp, xxx, ebx, edx, ecx, eax;$/;"	m	struct:StackFrame
+eflags	kernel/include/x86/memory.h	/^			uint32_t cr3, eip, eflags, eax, ecx, edx, ebx, esp, ebp, esi, edi;$/;"	m	struct:TSS::__anon1::__anon3
+eflags	kernel/include/x86/memory.h	/^	uint32_t eip, cs, eflags, esp, ss;$/;"	m	struct:StackFrame
+ehsize	bootloader/boot.h	/^	unsigned short ehsize;$/;"	m	struct:ELFHeader
+ehsize	kernel/include/x86/io.h	/^	unsigned short ehsize;$/;"	m	struct:ELFHeader
+eip	kernel/include/x86/memory.h	/^			uint32_t cr3, eip, eflags, eax, ecx, edx, ebx, esp, ebp, esi, edi;$/;"	m	struct:TSS::__anon1::__anon3
+eip	kernel/include/x86/memory.h	/^	uint32_t eip, cs, eflags, esp, ss;$/;"	m	struct:StackFrame
+elf	bootloader/boot.h	/^	unsigned char  elf[12];$/;"	m	struct:ELFHeader
+elf	kernel/include/x86/io.h	/^	unsigned char  elf[12];$/;"	m	struct:ELFHeader
+enableInterrupt	kernel/include/x86/cpu.h	/^static inline void enableInterrupt(void) {$/;"	f
+entry	bootloader/boot.h	/^	unsigned int   entry;$/;"	m	struct:ELFHeader
+entry	kernel/include/x86/io.h	/^	unsigned int   entry;$/;"	m	struct:ELFHeader
+error	kernel/include/x86/memory.h	/^	uint32_t irq, error;$/;"	m	struct:StackFrame
+es	kernel/include/x86/memory.h	/^			uint32_t es, cs, ss, ds, fs, gs, ldt;$/;"	m	struct:TSS::__anon1::__anon3
+es	kernel/include/x86/memory.h	/^	uint32_t gs, fs, es, ds;$/;"	m	struct:StackFrame
+esi	kernel/include/x86/memory.h	/^			uint32_t cr3, eip, eflags, eax, ecx, edx, ebx, esp, ebp, esi, edi;$/;"	m	struct:TSS::__anon1::__anon3
+esi	kernel/include/x86/memory.h	/^	uint32_t edi, esi, ebp, xxx, ebx, edx, ecx, eax;$/;"	m	struct:StackFrame
+esp	kernel/include/x86/memory.h	/^			uint32_t cr3, eip, eflags, eax, ecx, edx, ebx, esp, ebp, esi, edi;$/;"	m	struct:TSS::__anon1::__anon3
+esp	kernel/include/x86/memory.h	/^	uint32_t eip, cs, eflags, esp, ss;$/;"	m	struct:StackFrame
+esp0	kernel/include/x86/memory.h	/^	uint32_t esp0;         \/\/ Ring 0 Stack pointer and segment selector$/;"	m	struct:TSS
+esp1	kernel/include/x86/memory.h	/^			uint32_t esp1,ss1,esp2,ss2;$/;"	m	struct:TSS::__anon1::__anon3
+esp2	kernel/include/x86/memory.h	/^			uint32_t esp1,ss1,esp2,ss2;$/;"	m	struct:TSS::__anon1::__anon3
+exec	lib/syscall.c	/^int exec(void (*func)(void)) {$/;"	f
+exit	lib/syscall.c	/^int exit() {$/;"	f
+filesz	bootloader/boot.h	/^	unsigned int filesz;$/;"	m	struct:ProgramHeader
+filesz	kernel/include/x86/io.h	/^	unsigned int filesz;$/;"	m	struct:ProgramHeader
+flags	bootloader/boot.h	/^	unsigned int   flags;$/;"	m	struct:ELFHeader
+flags	bootloader/boot.h	/^	unsigned int flags;$/;"	m	struct:ProgramHeader
+flags	kernel/include/x86/io.h	/^	unsigned int   flags;$/;"	m	struct:ELFHeader
+flags	kernel/include/x86/io.h	/^	unsigned int flags;$/;"	m	struct:ProgramHeader
+fork	lib/syscall.c	/^pid_t fork() {$/;"	f
+fs	kernel/include/x86/memory.h	/^			uint32_t es, cs, ss, ds, fs, gs, ldt;$/;"	m	struct:TSS::__anon1::__anon3
+fs	kernel/include/x86/memory.h	/^	uint32_t gs, fs, es, ds;$/;"	m	struct:StackFrame
+g	kernel/include/x86/memory.h	/^	uint32_t g : 1;          \/\/ Granularity: limit scaled by 4K when set$/;"	m	struct:SegDesc
+gdt	bootloader/start.S	/^gdt: # 8 bytes for each table entry, at least 1 entry$/;"	l
+gdt	kernel/kernel/kvm.c	/^    gdt[NR_SEGMENTS];  \/\/ the new GDT, NR_SEGMENTS=10, defined in x86\/memory.h$/;"	v
+gdtDesc	bootloader/start.S	/^gdtDesc: # 6 bytes in total$/;"	l
+getChar	kernel/kernel/keyboard.c	/^char getChar(uint32_t code) {$/;"	f
+getKeyCode	kernel/kernel/keyboard.c	/^uint32_t getKeyCode() {$/;"	f
+gs	kernel/include/x86/memory.h	/^			uint32_t es, cs, ss, ds, fs, gs, ldt;$/;"	m	struct:TSS::__anon1::__anon3
+gs	kernel/include/x86/memory.h	/^	uint32_t gs, fs, es, ds;$/;"	m	struct:StackFrame
+hex2Str	lib/syscall.c	/^int hex2Str(uint32_t hexadecimal, char *buffer, int size, int count) {$/;"	f
+i2A	kernel/lib/abort.c	/^static char *i2A(int a) {$/;"	f	file:
+idt	kernel/kernel/idt.c	/^struct GateDescriptor idt[NR_IRQ]; \/\/ NR_IRQ=256, defined in x86\/cpu.h$/;"	v	typeref:struct:GateDescriptor
+inByte	bootloader/boot.h	/^static inline char inByte(short port) {$/;"	f
+inByte	kernel/include/x86/io.h	/^static inline uint8_t inByte(uint16_t port) {$/;"	f
+inLong	bootloader/boot.h	/^static inline int inLong(short port) {$/;"	f
+inLong	kernel/include/x86/io.h	/^static inline int inLong(short port) {$/;"	f
+initDev	kernel/kernel/kvm.c	/^void initDev() {$/;"	f
+initIdt	kernel/kernel/idt.c	/^void initIdt() {$/;"	f
+initIntr	kernel/kernel/i8259.c	/^initIntr(void) {$/;"	f
+initKeyTable	kernel/kernel/keyboard.c	/^void initKeyTable() {$/;"	f
+initProc	kernel/kernel/kvm.c	/^void initProc() {$/;"	f
+initSeg	kernel/kernel/kvm.c	/^void initSeg() {  \/\/ setup kernel segements$/;"	f
+initSem	kernel/kernel/kvm.c	/^void initSem() {$/;"	f
+initSerial	kernel/kernel/serial.c	/^void initSerial(void) {$/;"	f
+initTimer	kernel/kernel/timer.c	/^void initTimer() {$/;"	f
+initVga	kernel/kernel/vga.c	/^void initVga() {$/;"	f
+int16_t	kernel/include/common/types.h	/^typedef          short int16_t;$/;"	t
+int16_t	lib/types.h	/^typedef          short int16_t;$/;"	t
+int32_t	kernel/include/common/types.h	/^typedef          int   int32_t;$/;"	t
+int32_t	lib/types.h	/^typedef          int   int32_t;$/;"	t
+int8_t	kernel/include/common/types.h	/^typedef          char  int8_t;$/;"	t
+int8_t	lib/types.h	/^typedef          char  int8_t;$/;"	t
+irq	kernel/include/x86/memory.h	/^	uint32_t irq, error;$/;"	m	struct:StackFrame
+irqAlignCheck	kernel/kernel/doIrq.S	/^irqAlignCheck:$/;"	l
+irqDoubleFault	kernel/kernel/doIrq.S	/^irqDoubleFault:$/;"	l
+irqEmpty	kernel/kernel/doIrq.S	/^irqEmpty:$/;"	l
+irqErrorCode	kernel/kernel/doIrq.S	/^irqErrorCode:$/;"	l
+irqGProtectFault	kernel/kernel/doIrq.S	/^irqGProtectFault:$/;"	l
+irqHandle	kernel/kernel/irqHandle.c	/^void irqHandle(struct StackFrame *sf) { \/\/ pointer sf = esp$/;"	f
+irqInvalidTSS	kernel/kernel/doIrq.S	/^irqInvalidTSS:$/;"	l
+irqKeyboard	kernel/kernel/doIrq.S	/^irqKeyboard:$/;"	l
+irqPageFault	kernel/kernel/doIrq.S	/^irqPageFault:$/;"	l
+irqSecException	kernel/kernel/doIrq.S	/^irqSecException:$/;"	l
+irqSegNotPresent	kernel/kernel/doIrq.S	/^irqSegNotPresent:$/;"	l
+irqStackSegFault	kernel/kernel/doIrq.S	/^irqStackSegFault:$/;"	l
+irqSyscall	kernel/kernel/doIrq.S	/^irqSyscall:$/;"	l
+irqTimer	kernel/kernel/doIrq.S	/^irqTimer:$/;"	l
+kEntry	kernel/main.c	/^void kEntry(void) {$/;"	f
+keyBuffer	kernel/kernel/keyboard.c	/^uint32_t keyBuffer[MAX_KEYBUFFER_SIZE];$/;"	v
+keyTable	kernel/kernel/keyboard.c	/^static char *keyTable;$/;"	v	file:
+keyTableL	kernel/kernel/keyboard.c	/^static char keyTableL[KEYTABLE_SIZE];$/;"	v	file:
+keyTableU	kernel/kernel/keyboard.c	/^static char keyTableU[KEYTABLE_SIZE];$/;"	v	file:
+keyboardHandle	kernel/kernel/irqHandle.c	/^void keyboardHandle(struct StackFrame *sf) {$/;"	f
+keyboardState	kernel/kernel/keyboard.c	/^static int keyboardState;$/;"	v	file:
+lLdt	kernel/include/x86/memory.h	/^static inline void lLdt(uint16_t sel)$/;"	f
+ldt	kernel/include/x86/memory.h	/^			uint32_t es, cs, ss, ds, fs, gs, ldt;$/;"	m	struct:TSS::__anon1::__anon3
+lim_15_0	kernel/include/x86/memory.h	/^	uint32_t lim_15_0 : 16;  \/\/ Low bits of segment limit$/;"	m	struct:SegDesc
+lim_19_16	kernel/include/x86/memory.h	/^	uint32_t lim_19_16 : 4;  \/\/ High bits of segment limit$/;"	m	struct:SegDesc
+link	kernel/include/x86/memory.h	/^	uint32_t link;         \/\/ old ts selector$/;"	m	struct:TSS
+loadUMain	kernel/kernel/kvm.c	/^uint32_t loadUMain(void) {$/;"	f
+machine	bootloader/boot.h	/^	unsigned short machine;$/;"	m	struct:ELFHeader
+machine	kernel/include/x86/io.h	/^	unsigned short machine;$/;"	m	struct:ELFHeader
+magic	bootloader/boot.h	/^	unsigned int   magic;$/;"	m	struct:ELFHeader
+magic	kernel/include/x86/io.h	/^	unsigned int   magic;$/;"	m	struct:ELFHeader
+matchWhiteSpace	lib/syscall.c	/^int matchWhiteSpace(char *buffer, int size, int *count){$/;"	f
+memsz	bootloader/boot.h	/^	unsigned int memsz;$/;"	m	struct:ProgramHeader
+memsz	kernel/include/x86/io.h	/^	unsigned int memsz;$/;"	m	struct:ProgramHeader
+name	kernel/include/x86/memory.h	/^	char name[32];$/;"	m	struct:ProcessTable
+next	kernel/include/x86/memory.h	/^	struct ListHead *next;$/;"	m	struct:ListHead	typeref:struct:ListHead::ListHead
+off	bootloader/boot.h	/^	unsigned int off;$/;"	m	struct:ProgramHeader
+off	kernel/include/x86/io.h	/^	unsigned int off;$/;"	m	struct:ProgramHeader
+offset_15_0	kernel/include/x86/memory.h	/^	uint32_t offset_15_0      : 16;$/;"	m	struct:GateDescriptor
+offset_31_16	kernel/include/x86/memory.h	/^	uint32_t offset_31_16     : 16;$/;"	m	struct:GateDescriptor
+outByte	bootloader/boot.h	/^static inline void outByte(short port, char data) {$/;"	f
+outByte	kernel/include/x86/io.h	/^static inline void outByte(uint16_t port, int8_t data) {$/;"	f
+p	kernel/include/x86/memory.h	/^	uint32_t p : 1;          \/\/ Present$/;"	m	struct:SegDesc
+pad0	kernel/include/x86/memory.h	/^	uint32_t pad0             : 8;$/;"	m	struct:GateDescriptor
+paddr	bootloader/boot.h	/^	unsigned int paddr;$/;"	m	struct:ProgramHeader
+paddr	kernel/include/x86/io.h	/^	unsigned int paddr;$/;"	m	struct:ProgramHeader
+pcb	kernel/include/x86/memory.h	/^	struct ListHead pcb; \/\/ link to all pcb ListHead blocked on this device$/;"	m	struct:Device	typeref:struct:Device::ListHead
+pcb	kernel/include/x86/memory.h	/^	struct ListHead pcb; \/\/ link to all pcb ListHead blocked on this semaphore$/;"	m	struct:Semaphore	typeref:struct:Semaphore::ListHead
+pcb	kernel/kernel/kvm.c	/^ProcessTable pcb[MAX_PCB_NUM];  \/\/ pcb$/;"	v
+phentsize	bootloader/boot.h	/^	unsigned short phentsize;$/;"	m	struct:ELFHeader
+phentsize	kernel/include/x86/io.h	/^	unsigned short phentsize;$/;"	m	struct:ELFHeader
+phnum	bootloader/boot.h	/^	unsigned short phnum;$/;"	m	struct:ELFHeader
+phnum	kernel/include/x86/io.h	/^	unsigned short phnum;$/;"	m	struct:ELFHeader
+phoff	bootloader/boot.h	/^	unsigned int   phoff;$/;"	m	struct:ELFHeader
+phoff	kernel/include/x86/io.h	/^	unsigned int   phoff;$/;"	m	struct:ELFHeader
+pid	kernel/include/x86/memory.h	/^	uint32_t pid;$/;"	m	struct:ProcessTable
+pid_t	lib/types.h	/^typedef int32_t  pid_t;$/;"	t
+present	kernel/include/x86/memory.h	/^	uint32_t present          : 1;$/;"	m	struct:GateDescriptor
+prev	kernel/include/x86/memory.h	/^	struct ListHead *prev;$/;"	m	struct:ListHead	typeref:struct:ListHead::ListHead
+prevStackTop	kernel/include/x86/memory.h	/^	uint32_t prevStackTop;$/;"	m	struct:ProcessTable
+printf	lib/syscall.c	/^int printf(const char *format,...){$/;"	f
+privilege_level	kernel/include/x86/memory.h	/^	uint32_t privilege_level  : 2;$/;"	m	struct:GateDescriptor
+putChar	kernel/kernel/serial.c	/^void putChar(char ch) {$/;"	f
+readSect	bootloader/boot.c	/^void readSect(void *dst, int offset) { \/\/ reading a sector of disk$/;"	f
+readSect	kernel/kernel/disk.c	/^void readSect(void *dst, int offset) {$/;"	f
+regs	kernel/include/x86/memory.h	/^	struct StackFrame regs;$/;"	m	struct:ProcessTable	typeref:struct:ProcessTable::StackFrame
+rsv1	kernel/include/x86/memory.h	/^	uint32_t rsv1 : 1;       \/\/ Reserved$/;"	m	struct:SegDesc
+s	kernel/include/x86/memory.h	/^	uint32_t s : 1;          \/\/ 0 = system, 1 = application$/;"	m	struct:SegDesc
+saveIdt	kernel/include/x86/cpu.h	/^static inline void saveIdt(void *addr, uint32_t size) {$/;"	f
+scanf	lib/syscall.c	/^int scanf(const char *format,...) {$/;"	f
+scrollScreen	kernel/kernel/vga.c	/^void scrollScreen() {$/;"	f
+segment	kernel/include/x86/memory.h	/^	uint32_t segment          : 16;$/;"	m	struct:GateDescriptor
+sem	kernel/kernel/kvm.c	/^Semaphore sem[MAX_SEM_NUM];$/;"	v
+sem_destroy	lib/syscall.c	/^int sem_destroy(sem_t *sem) {$/;"	f
+sem_init	lib/syscall.c	/^int sem_init(sem_t *sem, uint32_t value) {$/;"	f
+sem_post	lib/syscall.c	/^int sem_post(sem_t *sem) {$/;"	f
+sem_t	lib/types.h	/^typedef int32_t sem_t;$/;"	t
+sem_wait	lib/syscall.c	/^int sem_wait(sem_t *sem) {$/;"	f
+serialIdle	kernel/kernel/serial.c	/^static inline int serialIdle(void) {$/;"	f	file:
+setGdt	kernel/include/x86/memory.h	/^static inline void setGdt(SegDesc *gdt, uint32_t size) {$/;"	f
+setIntr	kernel/kernel/idt.c	/^static void setIntr(struct GateDescriptor *ptr, uint32_t selector, uint32_t offset, uint32_t dpl) {$/;"	f	file:
+shentsize	bootloader/boot.h	/^	unsigned short shentsize;$/;"	m	struct:ELFHeader
+shentsize	kernel/include/x86/io.h	/^	unsigned short shentsize;$/;"	m	struct:ELFHeader
+shnum	bootloader/boot.h	/^	unsigned short shnum;$/;"	m	struct:ELFHeader
+shnum	kernel/include/x86/io.h	/^	unsigned short shnum;$/;"	m	struct:ELFHeader
+shoff	bootloader/boot.h	/^	unsigned int   shoff;$/;"	m	struct:ELFHeader
+shoff	kernel/include/x86/io.h	/^	unsigned int   shoff;$/;"	m	struct:ELFHeader
+shstrndx	bootloader/boot.h	/^	unsigned short shstrndx;$/;"	m	struct:ELFHeader
+shstrndx	kernel/include/x86/io.h	/^	unsigned short shstrndx;$/;"	m	struct:ELFHeader
+size_t	kernel/include/common/types.h	/^typedef unsigned int   size_t;$/;"	t
+size_t	lib/types.h	/^typedef uint32_t size_t;$/;"	t
+sleep	lib/syscall.c	/^int sleep(uint32_t time) {$/;"	f
+sleepTime	kernel/include/x86/memory.h	/^	int sleepTime;$/;"	m	struct:ProcessTable
+ss	kernel/include/x86/memory.h	/^			uint32_t es, cs, ss, ds, fs, gs, ldt;$/;"	m	struct:TSS::__anon1::__anon3
+ss	kernel/include/x86/memory.h	/^	uint32_t eip, cs, eflags, esp, ss;$/;"	m	struct:StackFrame
+ss0	kernel/include/x86/memory.h	/^	uint32_t ss0;          \/\/ after an increase in privilege level$/;"	m	struct:TSS
+ss1	kernel/include/x86/memory.h	/^			uint32_t esp1,ss1,esp2,ss2;$/;"	m	struct:TSS::__anon1::__anon3
+ss2	kernel/include/x86/memory.h	/^			uint32_t esp1,ss1,esp2,ss2;$/;"	m	struct:TSS::__anon1::__anon3
+stack	kernel/include/x86/memory.h	/^	uint32_t stack[MAX_STACK_SIZE];$/;"	m	struct:ProcessTable
+stackTop	kernel/include/x86/memory.h	/^	uint32_t stackTop;$/;"	m	struct:ProcessTable
+start	bootloader/start.S	/^start:$/;"	l
+start32	bootloader/start.S	/^start32:$/;"	l
+state	kernel/include/x86/memory.h	/^	int state;$/;"	m	struct:Device
+state	kernel/include/x86/memory.h	/^	int state;$/;"	m	struct:ProcessTable
+state	kernel/include/x86/memory.h	/^	int state;$/;"	m	struct:Semaphore
+str2Dec	lib/syscall.c	/^int str2Dec(int *dec, char *buffer, int size, int *count) {$/;"	f
+str2Hex	lib/syscall.c	/^int str2Hex(int *hex, char *buffer, int size, int *count) {$/;"	f
+str2Str	lib/syscall.c	/^int str2Str(char *string, char *buffer, int size, int count) {$/;"	f
+str2Str2	lib/syscall.c	/^int str2Str2(char *string, int avail, char *buffer, int size, int *count) {$/;"	f
+switchKeyboard	kernel/kernel/keyboard.c	/^static inline void switchKeyboard() {$/;"	f	file:
+syscall	lib/syscall.c	/^int32_t syscall(int num, uint32_t a1,uint32_t a2,$/;"	f
+syscallExec	kernel/kernel/irqHandle.c	/^void syscallExec(struct StackFrame *sf) {$/;"	f
+syscallExit	kernel/kernel/irqHandle.c	/^void syscallExit(struct StackFrame *sf) {$/;"	f
+syscallFork	kernel/kernel/irqHandle.c	/^void syscallFork(struct StackFrame *sf) {$/;"	f
+syscallHandle	kernel/kernel/irqHandle.c	/^void syscallHandle(struct StackFrame *sf) {$/;"	f
+syscallRead	kernel/kernel/irqHandle.c	/^void syscallRead(struct StackFrame *sf) {$/;"	f
+syscallReadStdIn	kernel/kernel/irqHandle.c	/^void syscallReadStdIn(struct StackFrame *sf) {$/;"	f
+syscallSem	kernel/kernel/irqHandle.c	/^void syscallSem(struct StackFrame *sf) {$/;"	f
+syscallSemDestroy	kernel/kernel/irqHandle.c	/^void syscallSemDestroy(struct StackFrame *sf) {$/;"	f
+syscallSemInit	kernel/kernel/irqHandle.c	/^void syscallSemInit(struct StackFrame *sf) {$/;"	f
+syscallSemPost	kernel/kernel/irqHandle.c	/^void syscallSemPost(struct StackFrame *sf) {$/;"	f
+syscallSemWait	kernel/kernel/irqHandle.c	/^void syscallSemWait(struct StackFrame *sf) {$/;"	f
+syscallSleep	kernel/kernel/irqHandle.c	/^void syscallSleep(struct StackFrame *sf) {$/;"	f
+syscallWrite	kernel/kernel/irqHandle.c	/^void syscallWrite(struct StackFrame *sf) {$/;"	f
+syscallWriteStdOut	kernel/kernel/irqHandle.c	/^void syscallWriteStdOut(struct StackFrame *sf) {$/;"	f
+system	kernel/include/x86/memory.h	/^	uint32_t system           : 1;$/;"	m	struct:GateDescriptor
+timeCount	kernel/include/x86/memory.h	/^	int timeCount;$/;"	m	struct:ProcessTable
+timerHandle	kernel/kernel/irqHandle.c	/^void timerHandle(struct StackFrame *sf) {$/;"	f
+tss	kernel/kernel/kvm.c	/^TSS tss;$/;"	v
+type	bootloader/boot.h	/^	unsigned int type;$/;"	m	struct:ProgramHeader
+type	bootloader/boot.h	/^	unsigned short type;$/;"	m	struct:ELFHeader
+type	kernel/include/x86/io.h	/^	unsigned int type;$/;"	m	struct:ProgramHeader
+type	kernel/include/x86/io.h	/^	unsigned short type;$/;"	m	struct:ELFHeader
+type	kernel/include/x86/memory.h	/^	uint32_t type             : 4;$/;"	m	struct:GateDescriptor
+type	kernel/include/x86/memory.h	/^	uint32_t type : 4;       \/\/ Segment type (see STS_ constants)$/;"	m	struct:SegDesc
+uEntry	app/main.c	/^int uEntry(void) {$/;"	f
+uint16_t	kernel/include/common/types.h	/^typedef unsigned short uint16_t;$/;"	t
+uint16_t	lib/types.h	/^typedef unsigned short uint16_t;$/;"	t
+uint32_t	kernel/include/common/types.h	/^typedef unsigned int   uint32_t;$/;"	t
+uint32_t	lib/types.h	/^typedef unsigned int   uint32_t;$/;"	t
+uint8_t	kernel/include/common/types.h	/^typedef unsigned char  uint8_t;$/;"	t
+uint8_t	lib/types.h	/^typedef unsigned char  uint8_t;$/;"	t
+updateCursor	kernel/kernel/vga.c	/^void updateCursor(int row, int col){$/;"	f
+vaddr	bootloader/boot.h	/^	unsigned int vaddr;$/;"	m	struct:ProgramHeader
+vaddr	kernel/include/x86/io.h	/^	unsigned int vaddr;$/;"	m	struct:ProgramHeader
+value	kernel/include/x86/memory.h	/^	int value;$/;"	m	struct:Device
+value	kernel/include/x86/memory.h	/^	int value;$/;"	m	struct:Semaphore
+version	bootloader/boot.h	/^	unsigned int   version;$/;"	m	struct:ELFHeader
+version	kernel/include/x86/io.h	/^	unsigned int   version;$/;"	m	struct:ELFHeader
+waitDisk	bootloader/boot.c	/^void waitDisk(void) { \/\/ waiting for disk$/;"	f
+waitDisk	kernel/kernel/disk.c	/^void waitDisk(void) {$/;"	f
+waitForInterrupt	kernel/include/x86/cpu.h	/^static inline void waitForInterrupt() {$/;"	f
+xxx	kernel/include/x86/memory.h	/^	uint32_t edi, esi, ebp, xxx, ebx, edx, ecx, eax;$/;"	m	struct:StackFrame
