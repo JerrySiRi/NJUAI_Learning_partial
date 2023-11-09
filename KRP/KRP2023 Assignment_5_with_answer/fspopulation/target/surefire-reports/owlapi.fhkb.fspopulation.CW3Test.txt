@@ -1,0 +1,25 @@
+-------------------------------------------------------------------------------
+Test set: owlapi.fhkb.fspopulation.CW3Test
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 3, Errors: 0, Skipped: 0, Time elapsed: 0.97 sec <<< FAILURE!
+testSave(owlapi.fhkb.fspopulation.CW3Test)  Time elapsed: 0.907 sec  <<< FAILURE!
+junit.framework.AssertionFailedError
+	at junit.framework.Assert.fail(Assert.java:47)
+	at junit.framework.Assert.assertTrue(Assert.java:20)
+	at junit.framework.Assert.assertTrue(Assert.java:27)
+	at owlapi.fhkb.fspopulation.CW3Test.testSave(CW3Test.java:68)
+
+testLoad(owlapi.fhkb.fspopulation.CW3Test)  Time elapsed: 0.022 sec  <<< FAILURE!
+junit.framework.AssertionFailedError
+	at junit.framework.Assert.fail(Assert.java:47)
+	at junit.framework.Assert.assertTrue(Assert.java:20)
+	at junit.framework.Assert.assertTrue(Assert.java:27)
+	at owlapi.fhkb.fspopulation.CW3Test.testLoad(CW3Test.java:35)
+
+testPopulate(owlapi.fhkb.fspopulation.CW3Test)  Time elapsed: 0.026 sec  <<< FAILURE!
+junit.framework.AssertionFailedError
+	at junit.framework.Assert.fail(Assert.java:47)
+	at junit.framework.Assert.assertTrue(Assert.java:20)
+	at junit.framework.Assert.assertTrue(Assert.java:27)
+	at owlapi.fhkb.fspopulation.CW3Test.testPopulate(CW3Test.java:94)
+
