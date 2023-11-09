@@ -1,2 +1,8 @@
-# NJU_AI_Learning-partial-
-# 南京大学人工智能学院 大二之后部分课程学习
+# 南京大学人工智能学院 部分重要核心课程学习
+# 本学期课程：
+## AML：
+1. homework1：
+2. homework2：
+
+## DL：
+1. homework1：
