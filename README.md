@@ -7,6 +7,8 @@
 ## DL：
 1. homework1：CNN、VAE
 2. homework2：implement AE、VAE、CVAE(compared to PCA) 
+
+
 ## 其他：分布式与并行计算、数据库概论
 
 # 前序课程：
