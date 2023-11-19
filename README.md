@@ -1,4 +1,4 @@
-# NJU_AI 部分重要核心课程学习（含编程）
+# NJU_AI 部分重要核心课程学习（with code）
 # 本学期课程：
 ## AML：
 1. homework1：多分类LR、SVM、EM、低秩PCA、度量学习
