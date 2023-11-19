@@ -13,47 +13,6 @@ import matplotlib.pyplot as plt
 
 
 # 尝试使用各种方式提升模型在测试集上性能：数据预处理 + 超参数调参
-"""
-1. 从公式的角度+超参数
-- C_u C_l的绝对值，和他们的相对比值
-    w的二范数平方2.325934813674294相对于xi_1和xi_2的加和差了10的10次方数量级-1.0698831730753999e-10，
-    方法：不断修改二者相差的数量级(通过修改C_u和C_l的值来完成)，在目标函数中后两项分别乘1e5-1e9，精度、AUC均无变化
-          同时不断修改二者的相对比例，从两者比例2倍-10倍，精度、AUC均无变化
-- 类别不平衡问题，先看看有没有严重的不平衡问题。有的话可以改进
-    方法：检测每次遍历完整数据集更新类别后正类父类的比值，负类：正类均基本稳定在0.6，没有类别不平衡
-- SVC中的参数
-    方法：尝试多项式核、高斯核，还是线性核最好，因为数据集基本是标准二分类问题
-
-2. 数据预处理的角度
-- SVM是基于距离的计算，对初始数据分布很在意的。可以进行归一化、标准化
-    归一化结果：
-未标记数据（直推）:预测精度为 0.9502923976608187
-未标记数据 (纯)半监督： 预测精度为 0.9532163742690059
-AUC in 未标记数据 (纯)半监督： 0.9877
-测试数据 (纯)半监督： 预测精度为 0.9646017699115044
-AUC in 测试数据 (纯)半监督： 0.9967
-
-    标准化结果：
-未标记数据（直推）:预测精度为 0.9619883040935673
-未标记数据 (纯)半监督： 预测精度为 0.9649122807017544
-AUC in 未标记数据 (纯)半监督： 0.9901
-测试数据 (纯)半监督： 预测精度为 0.9646017699115044
-AUC in 测试数据 (纯)半监督： 0.9977
-
-    归一化后标准化结果：
-未标记数据（直推）:预测精度为 0.9502923976608187
-未标记数据 (纯)半监督： 预测精度为 0.9532163742690059
-AUC in 未标记数据 (纯)半监督： 0.9877
-测试数据 (纯)半监督： 预测精度为 0.9646017699115044
-AUC in 测试数据 (纯)半监督： 0.9967
-
-原因分析：SVM和TSVM是基于距离度量的模型，对特征之间取值范围非常敏感（大数吃掉小数）
-    》》基于距离度量的模型有必要做数据标准化处理！
-    大多数机器学习算法中，会选择StandardScaler（标准化）来进行特征缩放，因为MinMaxScaler（归一化）对异常值非常敏感。
-    在PCA，聚类，逻辑回归，支持向量机，神经网络这些算法中，StandardScaler往往是最好的选择。
-"""
-
-
 
 # 两个单位向量，用于目标函数中的求和
 unit_1 = np.array([1 for x in range(114)])
@@ -69,17 +28,6 @@ E_1 = np.eye(30)
 class TSVM:
 
     def fit(self, X_l, y_l, X_u):
-        # step1:利用X_l和y_l训练一个SVM
-        # step2：使用此SVM进行标记指派。对所有未标记样本都进行
-        # step3：给一个初始化C_u和C_l，二者远小于即可
-        # step4：迭代1：直到C_u和C_l很接近
-            # 基于有标记+标记、无标记+指派+C_u和C_l重新训练得到新的划分超平面和松弛向量
-            # 迭代2：直到本轮中所有样本都不满足交换条件
-                # 找到无标记的指派中很有可能发生错误的样本，交换标记
-                # 基于有标记+标记、无标记+指派+C_u和C_l重新训练得到新的划分超平面和松弛向量
-            # 更新C_u,C_u=min{2C_u,C_l}
-
-        # 对y_l更新，从只有0，1标记->1，-1标记
         for index in range(0,len(y_l)):
             if y_l[index] == 0:
                 y_l[index] = -1
@@ -112,13 +60,25 @@ class TSVM:
         # print("目标函数第一项","w的二范数平方",0.5*np.array(w).T @ np.array(w))
         # print("目标函数第二项","xi_1",C_l* (unit_1.T @ xi_1))
         # print("目标函数第三项","xi_2",C_u* (unit_2.T @ xi_2))
+        self.w = w
+        self.b = b
+        
         X_f = np.concatenate((X_l ,X_u),axis=0)
         y_f = np.concatenate((y_l ,y_u_pre),axis=0)
-        final_svm = SVC(C=1,kernel="linear",probability=True).fit(X_f,y_f)
+        final_svm = SVC(C=1,kernel="linear",probability=True).fit(X_f,y_f) # 【纯半监督理解】
         for index in range(0,len(y_u_pre)):
             if y_u_pre[index] == -1:
                 y_u_pre[index] = 0
         return (y_u_pre,final_svm) # 返回未标记样本的预测结果
+    
+    def predict(self, X): #【直推理解】
+        """
+        预测函数
+        :param X: 预测数据的特征
+        :return: 数据对应的预测值
+        """
+        result = np.where(X @ self.w + self.b >= 0, 1, -1)
+        return result
 
 
 
@@ -223,8 +183,14 @@ if __name__ == '__main__':
     # 此时拿到的y_u_pre标记全是0和1啦！！！
     print("未标记数据（直推）:预测精度为",precision(y_u_pre,unlabel_y))
     print('\n')
+    # 【直推理解】
+    # y_unlabel = tsvm.predict(unlabel_X)
+    # 【纯半监督理解】
     prediction(final_svm,standarize(unlabel_X),unlabel_y,"未标记数据 (纯)半监督：")
     print('\n')
+    # 【直推理解】
+    #  y_test = tsvm.predict(test_X)
+    # 【纯半监督理解】
     prediction(final_svm,standarize(test_X),test_y,"测试数据 (纯)半监督：")
 
 
