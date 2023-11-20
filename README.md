@@ -1,10 +1,10 @@
 # NJU_AI 部分重要核心课程学习（with code）
 # 本学期课程：
-## AML：
-1. homework1：多分类LR、SVM、EM、低秩PCA、度量学习
-2. homework2：稀疏学习、图半监督学习、TSVM
+## AML：advanced machine learning
+1. homework1：multi-classification LR、 SVM、 EM、 low-rank PCA、 Metric Learning
+2. homework2：sparse learning、 Graph Semi-supervised Learning、TSVM
 
-## DL：
+## DL：deep learning
 1. homework1：CNN、VAE
 2. homework2：implement AE、VAE、CVAE(compared to PCA) 
 
