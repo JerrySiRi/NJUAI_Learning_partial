@@ -6,7 +6,7 @@
 
 ## DL：deep learning
 1. homework1：CNN、VAE
-2. homework2：implement AE、VAE、CVAE(compared to PCA) 
+2. homework2：implement AE、VAE、CVAE(version1: fully connected NN // version2: CNN)
 
 
 ## 其他：分布式与并行计算、数据库概论
