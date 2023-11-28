@@ -7,6 +7,9 @@ import java.time.LocalTime;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /*
  * 排序前的时间：15:50:35.184368600
@@ -80,10 +83,11 @@ public class MergeSort {
 
         new_1 = merge_sort(arr, L, (int)(Math.floor((R+L)/2)), whe);
         new_2 = merge_sort(arr, (int)(Math.floor((R+L)/2))+1, R, whe);
-        return merge(new_1, new_2);
+        return merge(new_1, new_2, whe);
     }
 
-    public static int[] merge(int[] new_1, int[] new_2){
+    public static int[] merge(int[] new_1, int[] new_2,int whe){
+        //【串行】
         int index_1 = 0; 
         int index_2 = 0;
         int res[] = new int[new_1.length + new_2.length];
@@ -105,9 +109,78 @@ public class MergeSort {
                     res[index] = new_2[index_2];
                     index_2++;
                 }
-            }
+            }   
         }
-        return res;
+            return res;
     }
-    
+
+
+    public static ArrayList<Integer> merge_par(ArrayList<Integer> list_1, ArrayList<Integer> list_2,int whe){
+        //【并行】通过划分+递归使大merge，变成小merge
+        //以下采用方根划分技术，merge的两数组长度最多差1
+        if(list_1.size()==0)//【merge完成，传入的new_1没有元素了！】
+            return list_2;
+                    //ArrayList<String> arrayList = new ArrayList<>(Arrays.asList(array));
+                    //有BUG
+
+        int seg_1 = (int)Math.ceil(Math.sqrt(list_1.size()));//划分长度
+        int seg_2 = (int)Math.ceil(Math.sqrt(list_2.size()));
+
+        int pivot_1[] = new int[seg_1];//A主元所在下标,一共seg_1个，最后一个是数组最后
+        for(int i=0;i<seg_1-1;i++)
+            pivot_1[i]=(i+1)*seg_1;
+        pivot_1[seg_1-1] = list_1.size()-1;
+        int pivot_2[] = new int[seg_2];//B主元所在下标，一共seg_2个，最后一个是数组最后
+        for(int i=0;i<seg_2-1;i++)
+            pivot_2[i]=(i+1)*seg_2;
+        pivot_2[seg_2-1] = list_2.size()-1;
+
+        for(int i=0; i<seg_1; i++){//【可以并行来做，一个处理器负责一段】
+            int pivot = list_1.get(pivot_1[i]);
+            int r_index=list_2.size()-1;//B中目标数据段的右侧索引.如果下面的if不满足，则A中所有的主元比B的主元要大！
+            
+            int index_last = 0;
+            if(i!=0)
+                index_last = pivot_1[i-1]; 
+            int index_now=pivot_1[i];
+
+            for(int j=0; i<seg_2-1; j++){
+                if(list_2.get(pivot_2[j])<=pivot && list_2.get(pivot_2[j+1])>=pivot){
+                    r_index = pivot_2[j+1];
+                    break;
+                }    
+            }
+
+            //此时A的范围是index_last---index_now
+            //此时A主元插入B的范围是l_index---r_index
+            // 简化版，在B的范围是0---r_index中插入。如果按照书上写，就会出现以下BUG
+            //【BUG】如果A是：1,3,8,8,8,8,15,16 、、B是：2,4,5,6,7,10,12,14,17。A的两个主元都是8，划分到B的一段中
+            r_index = list_2.size()-1; //test:对完整的B来merge
+            ArrayList<Integer> par_A = new ArrayList<Integer>();
+            ArrayList<Integer> par_B = new ArrayList<Integer>();
+            for(int cur=index_last; cur<=index_now; cur++)
+                par_A.add(list_1.get(cur));
+            for(int cur_b=0; cur_b< r_index;cur_b++ )
+                par_B.add(list_2.get(cur_b));
+            
+            //以下：对par_A和par_B来merge。结果返回merge好的，更新作为新的list_2以供下次for循环使用
+            
+
+
+
+
+
+
+
+
+        }
+                
+        
+    }
+
+
+
 }
+        
+    
+
