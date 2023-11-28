@@ -66,9 +66,6 @@ public class QuickSort{
             }
             //创建文件输出流
             FileOutputStream fout=new FileOutputStream(file);
-            // for(int a:arr){
-                //fout.write(a);//【BUG】不通过string的转换得到的是乱码！
-            //}
             for(int a:arr){
                 fout.write(String.valueOf(a).getBytes());
                 fout.write(String.valueOf(" ").getBytes());//输出空格

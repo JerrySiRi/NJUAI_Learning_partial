@@ -18,6 +18,7 @@ import java.io.InputStreamReader;
 public class MergeSort {
     public static void main(String args[]){
         int arr[] = new int[30000];
+        int par_or_seq = 0;//【指示是否是并行】0：非并行，是串行。1：并行
         try{
             int data[] = new int[30000];
             FileInputStream fileInputStream = new FileInputStream("random.txt");
@@ -43,7 +44,7 @@ public class MergeSort {
 		System.out.println("排序前的时间：" + before); 
         
         int result[] = new int[arr.length];
-        result = merge_sort(arr,0,arr.length-1);
+        result = merge_sort(arr,0,arr.length-1,par_or_seq);
         LocalTime after=LocalTime.now();   // 排序后时间
 		Duration duration=Duration.between(before, after);
 		System.out.println("排序后的时间：" + after);
@@ -68,7 +69,7 @@ public class MergeSort {
 
 
 
-    public static int[] merge_sort(int[] arr,int L, int R){
+    public static int[] merge_sort(int[] arr,int L, int R,int whe){
         if(R==L){
             int result[] = {arr[L]};
             return result;
@@ -77,8 +78,8 @@ public class MergeSort {
         int new_1[] = new int[(int)(Math.floor((R+L)/2))-L+1];
         int new_2[] = new int[R-(int)(Math.floor((R+L)/2))];
 
-        new_1 = merge_sort(arr, L, (int)(Math.floor((R+L)/2)));
-        new_2 = merge_sort(arr, (int)(Math.floor((R+L)/2))+1, R);
+        new_1 = merge_sort(arr, L, (int)(Math.floor((R+L)/2)), whe);
+        new_2 = merge_sort(arr, (int)(Math.floor((R+L)/2))+1, R, whe);
         return merge(new_1, new_2);
     }
 
