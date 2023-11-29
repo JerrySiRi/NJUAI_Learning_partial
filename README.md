@@ -2,24 +2,26 @@
 # 本学期课程：
 ## AML：advanced machine learning
 1. homework1：multi-classification LR、 SVM、 EM、 low-rank PCA、 Metric Learning
-2. homework2：sparse learning、 Graph Semi-supervised Learning、TSVM
+2. homework2：sparse learning、 Graph Semi-supervised Learning、TSVM (python)
 
 ## DL：deep learning
-1. homework1：CNN、VAE
-2. homework2：implement AE、VAE、CVAE(version1: fully connected NN // version2: CNN)
+1. homework1：CNN、VAE (pytorch)
+2. homework2：implement AE、VAE、CVAE(version1: fully connected NN, version2: CNN) (pytorch)
 
+## DP：distributed parallel computing
+1. project: parallel algorithms of QuickSort,EnumerateSort, MergeSort (Java)
 
-## 其他：分布式与并行计算、数据库概论
+## 其他：数据库系统概论
 
 # 前序课程：
- DS&A：数据结构与算法
+ DS&A：数据结构与算法 (C++)
 
- ICS：计算机系统基础
+ ICS：计算机系统基础 (C)
 
- IntroAI：人工智能导论
+ IntroAI：人工智能导论 (Java)
 
- KRP：知识表示与处理
+ KRP：知识表示与处理 (Java)
 
- ML：机器学习导论
+ ML：机器学习导论 (Python)
 
- OS：操作系统
+ OS：操作系统 (C)
