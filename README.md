@@ -7,6 +7,7 @@
 ## DL：deep learning
 1. homework1：CNN、VAE (pytorch)
 2. homework2：implement AE、VAE、CVAE(version1: fully connected NN, version2: CNN) (pytorch)
+3. homework3: whole galance(common problem in DL)
 
 ## DP：distributed parallel computing
 1. project: parallel algorithms of QuickSort,EnumerateSort, MergeSort (Java)
