@@ -47,13 +47,17 @@ public class MergeSort {
 		System.out.println("排序前的时间：" + before); 
         
         int result[] = new int[arr.length];
+
         result = merge_sort(arr,0,arr.length-1,par_or_seq);
+
         LocalTime after=LocalTime.now();   // 排序后时间
 		Duration duration=Duration.between(before, after);
 		System.out.println("排序后的时间：" + after);
 		System.out.println("时间差(毫秒)：" + duration.toMillis());
         try {
             File file=new File("order5.txt");
+            if(par_or_seq == 1)
+                file=new File("order6.txt");
             if(!file.exists()) {
                 file.createNewFile();
             }
@@ -83,10 +87,12 @@ public class MergeSort {
 
         new_1 = merge_sort(arr, L, (int)(Math.floor((R+L)/2)), whe);
         new_2 = merge_sort(arr, (int)(Math.floor((R+L)/2))+1, R, whe);
-        return merge(new_1, new_2, whe);
+        if(whe==0)//串行
+            return merge(new_1, new_2);
+        return merge_par(new_1,new_2);//并行
     }
 
-    public static int[] merge(int[] new_1, int[] new_2,int whe){
+    public static int[] merge(int[] new_1, int[] new_2){
         //【串行】
         int index_1 = 0; 
         int index_2 = 0;
@@ -114,8 +120,43 @@ public class MergeSort {
             return res;
     }
 
+    public static int[] merge_par(int[] A, int[] B){
+        int n = A.length;
+        int m = B.length;
+        int k_m = (int)(m/Math.log(m));
+        int index[] = new int[k_m+1];//下标从0-k_m
+        index[0]=0;index[k_m]=n-1;//指示A：数组最终划分区间
+        int temp=0;//【记录上次A遍历的位置，不用从头开始！！】
 
-    public static ArrayList<Integer> merge_par(ArrayList<Integer> list_1, ArrayList<Integer> list_2,int whe){
+        for(int i=1;i<k_m;i++){//【简化：串行来做，O(n)一定做完】【也可以用并行】
+
+            //step1: 求B主元在A中的位置
+            int pivot = B[i*(int)(Math.log(m))];
+            int sum=0;//A中小于等于B的个数
+            for(;temp<n;temp++){
+                if(A[temp]<=pivot)
+                    sum++;
+                else
+                    break;
+            }
+
+            //step2：把A的划分位置确定下来
+            index[i] = sum;
+        }
+
+
+
+
+        return new int[];
+
+
+
+    }
+
+}
+
+/*
+     * public static ArrayList<Integer> merge_par(ArrayList<Integer> list_1, ArrayList<Integer> list_2,int whe){
         //【并行】通过划分+递归使大merge，变成小merge
         //以下采用方根划分技术，merge的两数组长度最多差1
         if(list_1.size()==0)//【merge完成，传入的new_1没有元素了！】
@@ -163,24 +204,12 @@ public class MergeSort {
             for(int cur_b=0; cur_b< r_index;cur_b++ )
                 par_B.add(list_2.get(cur_b));
             
-            //以下：对par_A和par_B来merge。结果返回merge好的，更新作为新的list_2以供下次for循环使用
-            
-
-
-
-
-
-
-
-
-        }
-                
-        
+            //以下：对par_A和par_B来merge。结果返回merge好的，更新作为新的list_2以供下次for循环使用 
+        }   
     }
-
-
-
-}
+     * 
+     */
+    
         
     
 
