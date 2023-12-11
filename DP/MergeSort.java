@@ -24,7 +24,7 @@ import java.util.concurrent.CyclicBarrier;
 public class MergeSort {
     public static void main(String args[]){
         //int[] arr = {3,1,6,4,5,2,8,7};
-        int[] arr = {3,1,4,5};
+        int[] arr = {3,1,2,5,4,6};
         //int arr[] = new int[30000];
         int par_or_seq = 1;//【指示是否是并行】0：非并行，是串行。1：并行
         /*try{
@@ -139,7 +139,7 @@ public class MergeSort {
         int n = A.length;
         int m = B.length;
         int k_m;
-        if(m==1)
+        if(m==1 || m==2)
             k_m = 1;
         else
             k_m = (int)(m/Math.log(m));
@@ -150,6 +150,7 @@ public class MergeSort {
 
         //TODO：【bugbug】在index数组的位置，[1,3]和[4,5]来merge，分成两个段，4和5在A中位置都应该是2，会有重合！！！
         //【最终会丢一个元素！！！】
+        //【多线程也有问题，134答案也不对】
 
         for(int i=1;i<k_m;i++){//【简化：串行来做，O(n)一定做完】【也可以用并行】
 
@@ -178,14 +179,19 @@ public class MergeSort {
 
 
         CyclicBarrier barrier = new CyclicBarrier(k_m);//【必须k_m个线程都到达才能做！】
-        System.out.println("当前划分段数k_m"+k_m);
+        System.out.println("当前划分段数k_m="+k_m);
         for(int process=0; process<k_m; process++){//每一个process对应一个A和B的划分区间，分别串行来merge
             
             int start_A = index_A[process];
             int end_A = index_A[process+1];//以下copy的时候取不到！
             //if(start_A == end_A)
                 //end_A++;
-            int start_B = process * (int)(Math.log(m));
+            int start_B;
+            if(process == 0)
+                start_B = 0;
+            else
+                start_B = process * (int)(Math.log(m))+1;
+
             int end_B;//以下copy的时候取不到！
             if(process!=k_m-1)
                 end_B = (process+1) * (int)(Math.log(m))+1;
