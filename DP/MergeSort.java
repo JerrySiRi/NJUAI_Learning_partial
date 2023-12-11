@@ -12,14 +12,14 @@ import java.util.Arrays;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
-/*
+/*【串行】
  * 排序前的时间：15:50:35.184368600
 排序后的时间：15:50:35.193369900
 时间差(毫秒)：9
 文件写入成功
  */
 
-/*
+/*【并行】
  * 排序前的时间：22:00:49.735047600
 排序后的时间：22:00:56.792630200
 时间差(毫秒)：7057
@@ -54,6 +54,8 @@ public class MergeSort {
          catch (IOException e){
              System.out.println("读取错误，请检查是否有random.txt在相同目录下");
          }
+        
+        
 
         
         LocalTime before=LocalTime.now();  // 排序前时间

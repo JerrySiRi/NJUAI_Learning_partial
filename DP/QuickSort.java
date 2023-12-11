@@ -7,27 +7,43 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 
-/*
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+
+/*【串行】
  * 排序前的时间：15:15:21.843083800
 排序后的时间：15:15:21.851086100
 时间差(毫秒)：8
 文件写入成功
  * 
  */
+
+ /*【并行】
+
+数量小于1000，采用串行quick_sort
+排序前的时间：22:56:16.816390800
+排序后的时间：22:56:16.833394500
+时间差(毫秒)：17
+文件写入成功
+
+数量小于3000，采用串行quick_sort
+排序前的时间：22:57:10.511088200
+排序后的时间：22:57:10.524089800
+时间差(毫秒)：13
+文件写入成功
+
+数量小于5000，采用串行quick_sort
+排序前的时间：22:58:11.849594600
+排序后的时间：22:58:11.861597400
+时间差(毫秒)：12
+文件写入成功
+  */
 public class QuickSort{
     public static void main(String[] args){
-        //int[] arr = {3,1,6,4,5,2,8,7};
+        int par_or_seq = 1;//标志是否要并行执行，如果值是0，非并行-串行。值是1，并行
+        //int[] arr = {3,1,6,4,5,-8,2,8,7,-10};
         int arr[] = new int[30000];
         try{
-            /*
-             * FileInputStream in = new FileInputStream("random.txt");
-            byte data[] = new byte[30000];
-            int item;
-            while((item = in.read(data,0,30000))!=-1){
-                System.out.println("文件读取成功，读取数据个数"+item);
-            }
-             * 
-             */
             int data[] = new int[30000];
             FileInputStream fileInputStream = new FileInputStream("random.txt");
             InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
@@ -49,10 +65,11 @@ public class QuickSort{
         }
         
         
+        
         LocalTime before=LocalTime.now();  // 排序前时间
 		System.out.println("排序前的时间：" + before); 
-
-        quickSort(arr,0,arr.length-1);
+        
+        quickSort(arr,0,arr.length-1,par_or_seq);//传入下标起始、末尾
 
         LocalTime after=LocalTime.now();   // 排序后时间
 		Duration duration=Duration.between(before, after);
@@ -61,6 +78,9 @@ public class QuickSort{
         
         try {
             File file=new File("order1.txt");
+            if(par_or_seq==1)
+                file = new File("order2.txt");
+            
             if(!file.exists()) {
                 file.createNewFile();
             }
@@ -80,16 +100,48 @@ public class QuickSort{
 
     }
 
-    public static void quickSort(int[] arr,int Left,int Right){
+    public static void quickSort(int[] arr,int Left,int Right, int whe){
           if(Left < Right){
             // 随机生成一个数作为基准值
             // 为了不用传pivot，一直以最右元素作为pivot，调换一个位置即可
             swap(arr, Left + (int)(Math.random()*(Right - Left + 1)), Right);
             // patitition返回：小于pivot的数组最高位置，大于pivot的数组最小位置
-            int[] p = partition(arr, Left, Right);
-            quickSort(arr, Left, p[0]-1);
-            quickSort(arr, p[1]+1, Right);
-          }
+
+            int[] after_p = partition(arr, Left, Right);
+            //和mergesort相比，如若只对quicksort进行并行，此时不需要用同步障
+            //大家各自对arr的不同位置进行操作
+            if(whe == 0){
+                quickSort(arr, Left, after_p[0]-1, whe);
+                quickSort(arr, after_p[1]+1, Right, whe);
+            }
+            else{
+                //【报错：线程开的过多会报错】
+                //【逻辑错误：上一次没排好，main着急去创建下一次的线程就不行！】
+                if(after_p[0]-1 - Left < 5000 || Right - after_p[1]+1 < 5000){
+                    quickSort(arr, Left, after_p[0]-1, whe);
+                    quickSort(arr, after_p[1]+1, Right, whe);
+                }
+                else{
+                    CyclicBarrier barrier = new CyclicBarrier(3);//【必须k_m个线程都到达才能做！】
+                    ES3 new_thread1;
+                    new_thread1 = new ES3(arr, Left, after_p[0]-1, whe, barrier);
+                    new_thread1.start();
+
+                    ES3 new_thread2;
+                    new_thread2 = new ES3(arr, after_p[1]+1, Right, whe, barrier);
+                    new_thread2.start();
+
+                    //【main的等待】
+                    try {//等待其他线程完成当前统一partition对arr的划分
+                        barrier.await();
+                    } catch (InterruptedException | BrokenBarrierException e) {
+                        //TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }   
+            }
+            
+        }
     }
 
     public static int[] partition(int[] arr, int L,int R ) {
@@ -119,4 +171,31 @@ public class QuickSort{
         arr[i] = arr[j];
         arr[j] = temp;
     }
+}
+
+
+class ES3 extends Thread{
+    int arr[];
+    int left, right, whe;
+    private CyclicBarrier barrier;
+    ES3(int[] arr,int left, int right, int whe, CyclicBarrier barrier){
+        this.arr = arr;
+        //this.arr = new int[arr.length];
+        this.left = left;
+        this.right = right;
+        this.whe = whe;
+        this.barrier = barrier;
+    }
+
+    public void run(){
+        QuickSort.quickSort(arr, left, right, whe);
+        //【新创建线程的等待】
+        try {//等待其他线程完成当前统一partition对arr的划分
+            barrier.await();
+        } catch (InterruptedException | BrokenBarrierException e) {
+            //TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
 }
