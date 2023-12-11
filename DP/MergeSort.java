@@ -23,32 +23,36 @@ import java.util.concurrent.CyclicBarrier;
 
 public class MergeSort {
     public static void main(String args[]){
-        //int[] arr = {3,1,6,4,5,2,8,7};
-        int[] arr = {3,1,2,5,4,6};
-        //int arr[] = new int[30000];
         int par_or_seq = 1;//【指示是否是并行】0：非并行，是串行。1：并行
-        /*try{
-            int data[] = new int[30000];
-            FileInputStream fileInputStream = new FileInputStream("random.txt");
-            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            String line;
-            int index = 0;
-            while ((line = bufferedReader.readLine()) != null) {
-                String[] words = line.split(" ");
-                for (String word : words) {
-                    data[index]= Integer.parseInt(word);
-                    index++;
-                }
-            }
-            bufferedReader.close();
-            arr = data;
-        }
-        catch (IOException e){
-            System.out.println("读取错误，请检查是否有random.txt在相同目录下");
-        }
+        //int[] arr = {22,54,1,3,76,254,9,10};
+        int[] arr = {-53,1,2,54,4,-6,-10};
+        //int[] arr = {1,2,3};
+        /*
+         * int arr[] = new int[30000];
+        try{
+             int data[] = new int[30000];
+             FileInputStream fileInputStream = new FileInputStream("random.txt");
+             InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+             String line;
+             int index = 0;
+             while ((line = bufferedReader.readLine()) != null) {
+                 String[] words = line.split(" ");
+                 for (String word : words) {
+                     data[index]= Integer.parseInt(word);
+                     index++;
+                 }
+             }
+             bufferedReader.close();
+             arr = data;
+         }
+         catch (IOException e){
+             System.out.println("读取错误，请检查是否有random.txt在相同目录下");
+         }
+
          * 
          */
+        
         
         
         LocalTime before=LocalTime.now();  // 排序前时间
@@ -56,7 +60,8 @@ public class MergeSort {
         
         int result[] = new int[arr.length];
 
-        result = merge_sort(arr,0,arr.length-1,par_or_seq);
+        Object lock = new Object();
+        result = merge_sort(arr,0,arr.length-1,par_or_seq,lock);
 
         LocalTime after=LocalTime.now();   // 排序后时间
 		Duration duration=Duration.between(before, after);
@@ -83,8 +88,10 @@ public class MergeSort {
     }
 
 
-
-    public static int[] merge_sort(int[] arr,int L, int R,int whe){
+//BUG所在，此时就一个main线程来运行此函数。用sychronized来做意义不大！
+//main线程进merge_par中创建完线程就出来了
+    public static int[] merge_sort(int[] arr,int L, int R,int whe,Object lock){
+        
         if(R==L){
             int result[] = {arr[L]};
             
@@ -94,16 +101,23 @@ public class MergeSort {
         int new_1[] = new int[(int)(Math.floor((R+L)/2))-L+1];
         int new_2[] = new int[R-(int)(Math.floor((R+L)/2))];
 
-        new_1 = merge_sort(arr, L, (int)(Math.floor((R+L)/2)), whe);
+        new_1 = merge_sort(arr, L, (int)(Math.floor((R+L)/2)), whe, lock);
         //System.out.println(new_1[0]);
-        new_2 = merge_sort(arr, (int)(Math.floor((R+L)/2))+1, R, whe);
+        new_2 = merge_sort(arr, (int)(Math.floor((R+L)/2))+1, R, whe, lock);
         //System.out.println(new_2[0]);
         if(whe==0)//串行
             return merge(new_1, new_2);
 
-        int temp[] = merge_par(new_1,new_2);
-        System.out.println("main函数中拿到的temp:" + Arrays.toString(temp));
-        return temp;//并行
+        //第一次merge（两个单元素数组merge）---此时主线程继续往下运行、子线程来继续
+        //【BUG分两种】：merge_par中多线程间interleave、merge_par和main函数线程interleave
+        System.out.println("main函数中拿到的new_1:" + Arrays.toString(new_1));
+        System.out.println("main函数中拿到的new_2:" + Arrays.toString(new_2));
+        //System.out.println("main函数中拿到的temp:" + Arrays.toString(temp));
+        System.out.println("main函数中线程" + Thread.currentThread().getName());
+        
+        return merge_par(new_1,new_2,lock);//并行
+        
+        
     }
 
     public static int[] merge(int[] new_1, int[] new_2){
@@ -134,7 +148,8 @@ public class MergeSort {
             return res;
     }
 
-    public static int[] merge_par(int[] A, int[] B){
+    public static int[] merge_par(int[] A, int[] B, Object lock){
+        //Object lock_index = new Object();//【加锁】
         int ans[] = new int[A.length+B.length]; //merge的结果
         int n = A.length;
         int m = B.length;
@@ -148,15 +163,12 @@ public class MergeSort {
         //【最后一个位置只会用在串行merge中，而merge前需要切片，末尾不含】
         int temp=0;//【记录上次A遍历的位置，不用从头开始！！】
 
-        //TODO：【bugbug】在index数组的位置，[1,3]和[4,5]来merge，分成两个段，4和5在A中位置都应该是2，会有重合！！！
-        //【最终会丢一个元素！！！】
-        //【多线程也有问题，134答案也不对】
-
+        int sum=0;//【记录B中主元在A中的位置】
         for(int i=1;i<k_m;i++){//【简化：串行来做，O(n)一定做完】【也可以用并行】
 
             //step1: 求B主元在A中的位置
             int pivot = B[i*(int)(Math.log(m))];
-            int sum=0;//A中小于等于B的个数
+            //A中小于等于B的个数
             for(;temp<n;temp++){
                 if(A[temp]<=pivot)
                     sum++;
@@ -178,38 +190,57 @@ public class MergeSort {
             ans_start_index[j] = ans_start_index[j-1] + (int)(Math.log(m)) + index_A[j]-index_A[j-1];
 
 
-        CyclicBarrier barrier = new CyclicBarrier(k_m);//【必须k_m个线程都到达才能做！】
-        System.out.println("当前划分段数k_m="+k_m);
+        CyclicBarrier barrier1 = new CyclicBarrier(k_m);//【必须k_m个线程都到达才能做！】
+        //CyclicBarrier barrier2 = new CyclicBarrier(k_m+1);
+        //System.out.println("当前划分段数k_m="+k_m);
+
+        //TODO：在此处必须让所有新创建的线程和main同步来走【同步障】k_m+1个
+
         for(int process=0; process<k_m; process++){//每一个process对应一个A和B的划分区间，分别串行来merge
-            
-            int start_A = index_A[process];
-            int end_A = index_A[process+1];//以下copy的时候取不到！
+            int start_A,end_A;
+            int start_B,end_B;
+
+
+            start_A = index_A[process];
+            end_A = index_A[process+1];//以下copy的时候取不到！
             //if(start_A == end_A)
                 //end_A++;
-            int start_B;
+
             if(process == 0)
                 start_B = 0;
             else
                 start_B = process * (int)(Math.log(m))+1;
-
-            int end_B;//以下copy的时候取不到！
+            //以下copy的时候取不到！
             if(process!=k_m-1)
                 end_B = (process+1) * (int)(Math.log(m))+1;
             else
                 end_B = m;
+            //System.out.println("A="+Arrays.toString(A));
+            //System.out.println("B="+Arrays.toString(B));
+            //System.out.println("index_A="+Arrays.toString(index_A));
+            //System.out.println("start_A="+start_A+index_A[process]+process+"end_A="+end_A+index_A[process+1]+process);
             int[] A_partial = Arrays.copyOfRange(A, start_A, end_A); // 进行数组切片操作
             int[] B_partial = Arrays.copyOfRange(B, start_B, end_B); // 进行数组切片操作
             
             
-            ES2 new_thread = new ES2(barrier,A_partial, B_partial, ans, ans_start_index[process] );//多线程不能确保每个线程在什么时候完成。线程结束后返回数组最终再排序并不现实
+            ES2 new_thread = new ES2(barrier1,A_partial, B_partial, ans, ans_start_index[process],lock);//多线程不能确保每个线程在什么时候完成。线程结束后返回数组最终再排序并不现实
             //TODO：可以每个线程直接在“原数组result”上进行修改
             new_thread.start();
+            try {//等待其他线程完成对ans的赋值！
+                barrier1.await();
+            } catch (InterruptedException | BrokenBarrierException e) {
+                //TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
 
         }
-        System.out.println("merge_par:ans"+Arrays.toString(ans));
+        //此时是main来return的！
+        //TODO:需要等main和所有线程都做完之后，由main返回最终ans！
         return ans;
+        }
 
-    }
+
 }
 
 
@@ -219,36 +250,46 @@ class ES2 extends Thread{ //在result数组上直接进行修改，从start_inde
     int ans[];
     int A[],B[];
     int start;
+    Object lock = new Object();//【加锁】
     private CyclicBarrier barrier;
-    public ES2(CyclicBarrier barrier,int[] A, int[] B, int[] ans, int start_index){
+    public ES2(CyclicBarrier barrier,int[] A, int[] B, int[] ans, int start_index,Object lock){
         this.A = A;
         //this.arr = new int[arr.length];
         this.B = B;
         this.ans = ans;
         this.start = start_index;
         this.barrier = barrier;
+        this.lock = lock;
     }
 
+
     public void run(){
-        System.out.println("线程" + Thread.currentThread().getName() + "正在写入数据...");
+        System.out.println("线程" + Thread.currentThread().getName() + "正串行merge...");
         int temp[] = new int[A.length+B.length];
         temp = MergeSort.merge(A, B);
-        for(int i=0; i<A.length+B.length ;i++){//从temp的下标来访问
-            ans[start+i] = temp[i];
-            System.out.println( Thread.currentThread().getName() + "temp结果为"+ temp[i]);
+        
+        //【锁不应该在这里来加】
+        synchronized(lock){
+            for(int i=0; i<A.length+B.length ;i++){//从temp的下标来访问
+                ans[start+i] = temp[i];
+            }
         }
-        System.out.println("线程" + Thread.currentThread().getName() + "写入数据完毕，等待其他线程写入完毕...");
-        try {//等待其他线程完成对result的赋值！
+        
+        
+        //System.out.println( "线程"+Thread.currentThread().getName() + "写入ans中的数据为" + Arrays.toString(ans));
+        try {//等待其他线程完成对ans的赋值！
             barrier.await();
         } catch (InterruptedException | BrokenBarrierException e) {
-            // TODO Auto-generated catch block
+            //TODO Auto-generated catch block
             e.printStackTrace();
         }
-        System.out.println("所有线程写入完毕，继续处理其他任务...");
-        System.out.println("ans:"+Arrays.toString(ans));
+        //System.out.println("所有线程写入完毕，继续处理其他任务...");
+        //System.out.println("ans:"+Arrays.toString(ans));
+        
     }
 
 }
+
 
 /*
      * public static ArrayList<Integer> merge_par(ArrayList<Integer> list_1, ArrayList<Integer> list_2,int whe){
