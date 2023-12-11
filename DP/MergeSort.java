@@ -7,9 +7,10 @@ import java.time.LocalTime;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.Collectors;
+
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 
 /*
  * 排序前的时间：15:50:35.184368600
@@ -18,11 +19,15 @@ import java.util.stream.Collectors;
 文件写入成功
  */
 
+
+
 public class MergeSort {
     public static void main(String args[]){
-        int arr[] = new int[30000];
-        int par_or_seq = 0;//【指示是否是并行】0：非并行，是串行。1：并行
-        try{
+        //int[] arr = {3,1,6,4,5,2,8,7};
+        int[] arr = {3,1,4,5};
+        //int arr[] = new int[30000];
+        int par_or_seq = 1;//【指示是否是并行】0：非并行，是串行。1：并行
+        /*try{
             int data[] = new int[30000];
             FileInputStream fileInputStream = new FileInputStream("random.txt");
             InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
@@ -42,6 +47,9 @@ public class MergeSort {
         catch (IOException e){
             System.out.println("读取错误，请检查是否有random.txt在相同目录下");
         }
+         * 
+         */
+        
         
         LocalTime before=LocalTime.now();  // 排序前时间
 		System.out.println("排序前的时间：" + before); 
@@ -79,6 +87,7 @@ public class MergeSort {
     public static int[] merge_sort(int[] arr,int L, int R,int whe){
         if(R==L){
             int result[] = {arr[L]};
+            
             return result;
         }
             
@@ -86,10 +95,15 @@ public class MergeSort {
         int new_2[] = new int[R-(int)(Math.floor((R+L)/2))];
 
         new_1 = merge_sort(arr, L, (int)(Math.floor((R+L)/2)), whe);
+        //System.out.println(new_1[0]);
         new_2 = merge_sort(arr, (int)(Math.floor((R+L)/2))+1, R, whe);
+        //System.out.println(new_2[0]);
         if(whe==0)//串行
             return merge(new_1, new_2);
-        return merge_par(new_1,new_2);//并行
+
+        int temp[] = merge_par(new_1,new_2);
+        System.out.println("main函数中拿到的temp:" + Arrays.toString(temp));
+        return temp;//并行
     }
 
     public static int[] merge(int[] new_1, int[] new_2){
@@ -121,11 +135,17 @@ public class MergeSort {
     }
 
     public static int[] merge_par(int[] A, int[] B){
+        int ans[] = new int[A.length+B.length]; //merge的结果
         int n = A.length;
         int m = B.length;
-        int k_m = (int)(m/Math.log(m));
-        int index[] = new int[k_m+1];//下标从0-k_m
-        index[0]=0;index[k_m]=n-1;//指示A：数组最终划分区间
+        int k_m;
+        if(m==1)
+            k_m = 1;
+        else
+            k_m = (int)(m/Math.log(m));
+        int index_A[] = new int[k_m+1];//下标从0-k_m,指示数组A划分区间【k_m段，含开始结束，共k_m+1个位置】
+        index_A[0]=0;index_A[k_m]=n;//指示A：数组最终划分区间
+        //【最后一个位置只会用在串行merge中，而merge前需要切片，末尾不含】
         int temp=0;//【记录上次A遍历的位置，不用从头开始！！】
 
         for(int i=1;i<k_m;i++){//【简化：串行来做，O(n)一定做完】【也可以用并行】
@@ -141,16 +161,82 @@ public class MergeSort {
             }
 
             //step2：把A的划分位置确定下来
-            index[i] = sum;
+            index_A[i] = sum;
         }
+        
+
+        // 多线程，每个线程从哪里开始对ans数组进行赋值
+        int ans_start_index[] = new int[k_m];
+        ans_start_index[0] = 0;
+        if(k_m>1)
+            ans_start_index[1] = 0 + (int)(Math.log(m))+1+ index_A[1]-index_A[0];
+        for(int j = 2;j<k_m; j++)
+            ans_start_index[j] = ans_start_index[j-1] + (int)(Math.log(m)) + index_A[j]-index_A[j-1];
 
 
+        CyclicBarrier barrier = new CyclicBarrier(k_m);//【必须k_m个线程都到达才能做！】
+        System.out.println("当前划分段数k_m"+k_m);
+        for(int process=0; process<k_m; process++){//每一个process对应一个A和B的划分区间，分别串行来merge
+            
+            int start_A = index_A[process];
+            int end_A = index_A[process+1];//以下copy的时候取不到！
+            //if(start_A == end_A)
+                //end_A++;
+            int start_B = process * (int)(Math.log(m));
+            int end_B;//以下copy的时候取不到！
+            if(process!=k_m-1)
+                end_B = (process+1) * (int)(Math.log(m))+1;
+            else
+                end_B = m;
+            int[] A_partial = Arrays.copyOfRange(A, start_A, end_A); // 进行数组切片操作
+            int[] B_partial = Arrays.copyOfRange(B, start_B, end_B); // 进行数组切片操作
+            
+            
+            ES2 new_thread = new ES2(barrier,A_partial, B_partial, ans, ans_start_index[process] );//多线程不能确保每个线程在什么时候完成。线程结束后返回数组最终再排序并不现实
+            //TODO：可以每个线程直接在“原数组result”上进行修改
+            new_thread.start();
+
+        }
+        System.out.println("merge_par:ans"+Arrays.toString(ans));
+        return ans;
+
+    }
+}
 
 
-        return new int[];
+//每个线程串行对划分出来的小数组进行merge
+//BUG！！！vscode会把一个项目（目录）下的java文件编译到一起！如果和其他文件中的类重名就会报错！！！
+class ES2 extends Thread{ //在result数组上直接进行修改，从start_index位置开始
+    int ans[];
+    int A[],B[];
+    int start;
+    private CyclicBarrier barrier;
+    public ES2(CyclicBarrier barrier,int[] A, int[] B, int[] ans, int start_index){
+        this.A = A;
+        //this.arr = new int[arr.length];
+        this.B = B;
+        this.ans = ans;
+        this.start = start_index;
+        this.barrier = barrier;
+    }
 
-
-
+    public void run(){
+        System.out.println("线程" + Thread.currentThread().getName() + "正在写入数据...");
+        int temp[] = new int[A.length+B.length];
+        temp = MergeSort.merge(A, B);
+        for(int i=0; i<A.length+B.length ;i++){//从temp的下标来访问
+            ans[start+i] = temp[i];
+            System.out.println( Thread.currentThread().getName() + "temp结果为"+ temp[i]);
+        }
+        System.out.println("线程" + Thread.currentThread().getName() + "写入数据完毕，等待其他线程写入完毕...");
+        try {//等待其他线程完成对result的赋值！
+            barrier.await();
+        } catch (InterruptedException | BrokenBarrierException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        System.out.println("所有线程写入完毕，继续处理其他任务...");
+        System.out.println("ans:"+Arrays.toString(ans));
     }
 
 }
