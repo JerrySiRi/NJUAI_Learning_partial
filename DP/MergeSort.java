@@ -19,16 +19,21 @@ import java.util.concurrent.CyclicBarrier;
 文件写入成功
  */
 
-
+/*
+ * 排序前的时间：22:00:49.735047600
+排序后的时间：22:00:56.792630200
+时间差(毫秒)：7057
+文件写入成功
+ */
 
 public class MergeSort {
     public static void main(String args[]){
         int par_or_seq = 1;//【指示是否是并行】0：非并行，是串行。1：并行
         //int[] arr = {22,54,1,3,76,254,9,10};
-        int[] arr = {-53,1,2,54,4,-6,-10};
+        //int[] arr = {-53,1,2,54,4,-6,-10};
         //int[] arr = {1,2,3};
-        /*
-         * int arr[] = new int[30000];
+        
+        int arr[] = new int[30000];
         try{
              int data[] = new int[30000];
              FileInputStream fileInputStream = new FileInputStream("random.txt");
@@ -50,17 +55,13 @@ public class MergeSort {
              System.out.println("读取错误，请检查是否有random.txt在相同目录下");
          }
 
-         * 
-         */
-        
-        
         
         LocalTime before=LocalTime.now();  // 排序前时间
 		System.out.println("排序前的时间：" + before); 
         
         int result[] = new int[arr.length];
 
-        Object lock = new Object();
+        Object lock = new Object();//同步障：用来让main线程 、 k_m个线程同时完成后前进
         result = merge_sort(arr,0,arr.length-1,par_or_seq,lock);
 
         LocalTime after=LocalTime.now();   // 排序后时间
@@ -110,10 +111,10 @@ public class MergeSort {
 
         //第一次merge（两个单元素数组merge）---此时主线程继续往下运行、子线程来继续
         //【BUG分两种】：merge_par中多线程间interleave、merge_par和main函数线程interleave
-        System.out.println("main函数中拿到的new_1:" + Arrays.toString(new_1));
-        System.out.println("main函数中拿到的new_2:" + Arrays.toString(new_2));
+        //System.out.println("main函数中拿到的new_1:" + Arrays.toString(new_1));
+        //System.out.println("main函数中拿到的new_2:" + Arrays.toString(new_2));
         //System.out.println("main函数中拿到的temp:" + Arrays.toString(temp));
-        System.out.println("main函数中线程" + Thread.currentThread().getName());
+        //System.out.println("main函数中线程" + Thread.currentThread().getName());
         
         return merge_par(new_1,new_2,lock);//并行
         
@@ -190,7 +191,7 @@ public class MergeSort {
             ans_start_index[j] = ans_start_index[j-1] + (int)(Math.log(m)) + index_A[j]-index_A[j-1];
 
 
-        CyclicBarrier barrier1 = new CyclicBarrier(k_m);//【必须k_m个线程都到达才能做！】
+        CyclicBarrier barrier1 = new CyclicBarrier(k_m+1);//【必须k_m个线程都到达才能做！】
         //CyclicBarrier barrier2 = new CyclicBarrier(k_m+1);
         //System.out.println("当前划分段数k_m="+k_m);
 
@@ -203,8 +204,6 @@ public class MergeSort {
 
             start_A = index_A[process];
             end_A = index_A[process+1];//以下copy的时候取不到！
-            //if(start_A == end_A)
-                //end_A++;
 
             if(process == 0)
                 start_B = 0;
@@ -215,10 +214,7 @@ public class MergeSort {
                 end_B = (process+1) * (int)(Math.log(m))+1;
             else
                 end_B = m;
-            //System.out.println("A="+Arrays.toString(A));
-            //System.out.println("B="+Arrays.toString(B));
-            //System.out.println("index_A="+Arrays.toString(index_A));
-            //System.out.println("start_A="+start_A+index_A[process]+process+"end_A="+end_A+index_A[process+1]+process);
+        
             int[] A_partial = Arrays.copyOfRange(A, start_A, end_A); // 进行数组切片操作
             int[] B_partial = Arrays.copyOfRange(B, start_B, end_B); // 进行数组切片操作
             
@@ -226,16 +222,18 @@ public class MergeSort {
             ES2 new_thread = new ES2(barrier1,A_partial, B_partial, ans, ans_start_index[process],lock);//多线程不能确保每个线程在什么时候完成。线程结束后返回数组最终再排序并不现实
             //TODO：可以每个线程直接在“原数组result”上进行修改
             new_thread.start();
-            try {//等待其他线程完成对ans的赋值！
-                barrier1.await();
-            } catch (InterruptedException | BrokenBarrierException e) {
-                //TODO Auto-generated catch block
-                e.printStackTrace();
+
+            if(process == k_m-1){ //main线程的同步障设计，在main不需要创建新线程后，挂起
+                try {//等待其他线程完成对ans的赋值！
+                    barrier1.await();
+                } catch (InterruptedException | BrokenBarrierException e) {
+                    //TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
             }
-
-
+            
         }
-        //此时是main来return的！
+        //此时是main来return的！新创建线程在start()之后生命周期就结束了！
         //TODO:需要等main和所有线程都做完之后，由main返回最终ans！
         return ans;
         }
@@ -250,9 +248,9 @@ class ES2 extends Thread{ //在result数组上直接进行修改，从start_inde
     int ans[];
     int A[],B[];
     int start;
-    Object lock = new Object();//【加锁】
+    Object lock;//【加锁】
     private CyclicBarrier barrier;
-    public ES2(CyclicBarrier barrier,int[] A, int[] B, int[] ans, int start_index,Object lock){
+    public ES2(CyclicBarrier barrier,int[] A, int[] B, int[] ans, int start_index, Object lock){
         this.A = A;
         //this.arr = new int[arr.length];
         this.B = B;
@@ -264,15 +262,13 @@ class ES2 extends Thread{ //在result数组上直接进行修改，从start_inde
 
 
     public void run(){
-        System.out.println("线程" + Thread.currentThread().getName() + "正串行merge...");
+        //System.out.println("线程" + Thread.currentThread().getName() + "正串行merge...");
         int temp[] = new int[A.length+B.length];
         temp = MergeSort.merge(A, B);
         
         //【锁不应该在这里来加】
-        synchronized(lock){
-            for(int i=0; i<A.length+B.length ;i++){//从temp的下标来访问
-                ans[start+i] = temp[i];
-            }
+        for(int i=0; i<A.length+B.length ;i++){//从temp的下标来访问
+            ans[start+i] = temp[i];
         }
         
         
