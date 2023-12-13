@@ -32,6 +32,10 @@ public class MergeSort {
         //int[] arr = {22,54,1,3,76,254,9,10};
         //int[] arr = {-53,1,2,54,4,-6,-10};
         //int[] arr = {1,2,3};
+        if(par_or_seq == 0)
+            System.out.println("归并排序MergeSort-串行算法");
+        else
+            System.out.println("归并排序MergeSort-并行算法");
         
         int arr[] = new int[30000];
         try{
@@ -167,6 +171,11 @@ public class MergeSort {
         int temp=0;//【记录上次A遍历的位置，不用从头开始！！】
 
         int sum=0;//【记录B中主元在A中的位置】
+        if(k_m < 1000){
+            int result[] = new int[A.length+B.length];
+            result = MergeSort.merge(A, B);
+            return result;
+        }
         for(int i=1;i<k_m;i++){//【简化：串行来做，O(n)一定做完】【也可以用并行】
 
             //step1: 求B主元在A中的位置

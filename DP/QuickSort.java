@@ -121,7 +121,7 @@ public class QuickSort{
             else{
                 //【报错：线程开的过多会报错】
                 //【逻辑错误：上一次没排好，main着急去创建下一次的线程就不行！】
-                if(after_p[0]-1 - Left < 5000 || Right - after_p[1]+1 < 5000){
+                if(after_p[0]-1 - Left < 3000 || Right - after_p[1]+1 < 3000){
                     quickSort(arr, Left, after_p[0]-1, whe);
                     quickSort(arr, after_p[1]+1, Right, whe);
                 }

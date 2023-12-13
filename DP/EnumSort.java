@@ -7,6 +7,9 @@ import java.time.LocalTime;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+
 
 /*【串行】
  * 排序前的时间：15:15:36.462404500
@@ -87,6 +90,7 @@ public class EnumSort {
 
     public static int[] enum_sort(int[] arr,int whe){
         int result[] = new int[(int)arr.length];
+        CyclicBarrier barrier = new CyclicBarrier(arr.length+1);//【必须k_m个线程都到达才能做！】
         for(int target : arr){//【可以并行化设计，一个进程对应一个元素小于它个数的计算】
             if(whe == 0){//【串行】
                 int sum = 0;
@@ -98,10 +102,15 @@ public class EnumSort {
             }
             else if(whe == 1){//【并行】
                 ES new_thread;
-                new_thread = new ES(arr,result,target);
+                new_thread = new ES(arr,result,target,barrier);
                 new_thread.start();
             }
-            
+        }
+        try {
+            barrier.await();
+        } catch (InterruptedException | BrokenBarrierException e) {
+            //TODO Auto-generated catch block
+            e.printStackTrace();
         }
         return result;
     }
@@ -111,11 +120,13 @@ public class EnumSort {
 class ES extends Thread{
     int target;
     int arr[],result[];
-    ES(int[] arr,int[] result, int target){
+    CyclicBarrier barrier;
+    ES(int[] arr,int[] result, int target, CyclicBarrier barrier){
         this.target = target;
         //this.arr = new int[arr.length];
         this.arr = arr;
         this.result = result;
+        this.barrier = barrier;
     }
 
     public void run(){
@@ -125,6 +136,12 @@ class ES extends Thread{
                 sum++;
         }
         result[sum] = target;
+        try {
+            barrier.await();
+        } catch (InterruptedException | BrokenBarrierException e) {
+            //TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
 }
