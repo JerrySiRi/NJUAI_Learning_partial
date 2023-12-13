@@ -26,6 +26,10 @@ public class EnumSort {
     public static void main(String args[]){
         int arr[] = new int[30000];
         int par_or_seq = 1;//标志是否要并行执行，如果值是0，非并行-串行。值是1，并行
+        if(par_or_seq == 0)
+            System.out.println("枚举排序EnumSort-串行算法");
+        else
+            System.out.println("枚举排序EnumSort-并行算法");
         try{
             int data[] = new int[30000];
             FileInputStream fileInputStream = new FileInputStream("random.txt");

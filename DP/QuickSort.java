@@ -42,6 +42,10 @@ public class QuickSort{
     public static void main(String[] args){
         int par_or_seq = 1;//标志是否要并行执行，如果值是0，非并行-串行。值是1，并行
         //int[] arr = {3,1,6,4,5,-8,2,8,7,-10};
+        if(par_or_seq == 0)
+            System.out.println("快速排序QuickSort-串行算法");
+        else
+            System.out.println("快速排序QuickSort-并行算法");
         int arr[] = new int[30000];
         try{
             int data[] = new int[30000];
