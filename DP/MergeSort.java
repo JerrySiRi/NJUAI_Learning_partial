@@ -8,7 +8,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.util.Arrays;
-
+import java.util.Arrays;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
@@ -74,6 +74,8 @@ public class MergeSort {
 		Duration duration=Duration.between(before, after);
 		System.out.println("排序后的时间：" + after);
 		System.out.println("时间差(毫秒)：" + duration.toMillis());
+        int[] correct = Arrays.copyOfRange(arr,0,arr.length); 
+        Arrays.sort(correct);
         try {
             File file=new File("order5.txt");
             if(par_or_seq == 1)
@@ -92,6 +94,19 @@ public class MergeSort {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
+        boolean sen = true;
+        for(int index_t=0; index_t<result.length; index_t++){
+            if(result[index_t]!=correct[index_t]){
+                sen = false;
+                System.out.println("result" + result[index_t]);
+                System.out.println("correct" + correct[index_t]);
+                break;
+            }
+        }
+        if(sen==true)
+            System.out.println("使用java排序库函数验证：排序正确");
+        else
+            System.out.println("使用java排序库函数验证：排序错误");
     }
 
 
@@ -171,11 +186,14 @@ public class MergeSort {
         int temp=0;//【记录上次A遍历的位置，不用从头开始！！】
 
         int sum=0;//【记录B中主元在A中的位置】
-        if(k_m < 1000){
+        //【引入部分串行来优化】
+        
+        if(k_m < 500){
             int result[] = new int[A.length+B.length];
             result = MergeSort.merge(A, B);
             return result;
         }
+        
         for(int i=1;i<k_m;i++){//【简化：串行来做，O(n)一定做完】【也可以用并行】
 
             //step1: 求B主元在A中的位置

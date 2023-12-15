@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.InputStreamReader;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
-
+import java.util.Arrays;
 
 /*【串行】
  * 排序前的时间：15:15:36.462404500
@@ -34,7 +34,7 @@ import java.util.concurrent.CyclicBarrier;
 public class EnumSort {
     public static void main(String args[]){
         int arr[] = new int[30000];
-        int par_or_seq = 0;//标志是否要并行执行，如果值是0，非并行-串行。值是1，并行
+        int par_or_seq = 1;//标志是否要并行执行，如果值是0，非并行-串行。值是1，并行
         if(par_or_seq == 0)
             System.out.println("枚举排序EnumSort-串行算法");
         else
@@ -60,6 +60,10 @@ public class EnumSort {
             System.out.println("读取错误，请检查是否有random.txt在相同目录下");
         }
         
+
+        int[] correct = Arrays.copyOfRange(arr,0,arr.length); 
+        Arrays.sort(correct);
+        //正确的、已排序好的数组
         LocalTime before=LocalTime.now();  // 排序前时间
 		System.out.println("排序前的时间：" + before); 
         
@@ -92,6 +96,21 @@ public class EnumSort {
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
+        //【检查排序是否正确】
+        boolean sen = true;
+        for(int index_t=0; index_t<result.length; index_t++){
+            if(result[index_t]!=correct[index_t]){
+                sen = false;
+                System.out.println("result" + result[index_t]);
+                System.out.println("correct" + correct[index_t]);
+                break;
+            }
+        }
+        if(sen==true)
+            System.out.println("使用java排序库函数验证：排序正确");
+        else
+            System.out.println("使用java排序库函数验证：排序错误");
+
     }
 
     public static int[] enum_sort(int[] arr,int whe){

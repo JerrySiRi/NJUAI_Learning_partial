@@ -6,7 +6,7 @@ import java.time.LocalTime;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-
+import java.util.Arrays;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
@@ -75,6 +75,9 @@ public class QuickSort{
         
         quickSort(arr,0,arr.length-1,par_or_seq);//传入下标起始、末尾
 
+        int[] correct = Arrays.copyOfRange(arr,0,arr.length); 
+        Arrays.sort(correct);
+
         LocalTime after=LocalTime.now();   // 排序后时间
 		Duration duration=Duration.between(before, after);
 		System.out.println("排序后的时间：" + after);
@@ -102,6 +105,21 @@ public class QuickSort{
             System.out.println(e.getMessage());
         }
 
+        boolean sen = true;
+        for(int index_t=0; index_t<arr.length; index_t++){
+            if(arr[index_t]!=correct[index_t]){
+                sen = false;
+                System.out.println("arr" + arr[index_t]);
+                System.out.println("correct" + correct[index_t]);
+                break;
+            }
+        }
+        if(sen==true)
+            System.out.println("使用java排序库函数验证：排序正确");
+        else
+            System.out.println("使用java排序库函数验证：排序错误");
+
+
     }
 
     public static void quickSort(int[] arr,int Left,int Right, int whe){
@@ -121,7 +139,7 @@ public class QuickSort{
             else{
                 //【报错：线程开的过多会报错】
                 //【逻辑错误：上一次没排好，main着急去创建下一次的线程就不行！】
-                if(after_p[0]-1 - Left < 3000 || Right - after_p[1]+1 < 3000){
+                if(after_p[0]-1 - Left < 10 || Right - after_p[1]+1 < 10){
                     quickSort(arr, Left, after_p[0]-1, whe);
                     quickSort(arr, after_p[1]+1, Right, whe);
                 }
