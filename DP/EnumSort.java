@@ -24,11 +24,17 @@ import java.util.concurrent.CyclicBarrier;
 排序后的时间：17:38:29.610645
 时间差(毫秒)：2360
 文件写入成功
+
+枚举排序EnumSort-并行算法
+排序前的时间：10:46:58.248254200
+排序后的时间：10:47:14.467948900
+时间差(毫秒)：16219
+文件写入成功
   */
 public class EnumSort {
     public static void main(String args[]){
         int arr[] = new int[30000];
-        int par_or_seq = 1;//标志是否要并行执行，如果值是0，非并行-串行。值是1，并行
+        int par_or_seq = 0;//标志是否要并行执行，如果值是0，非并行-串行。值是1，并行
         if(par_or_seq == 0)
             System.out.println("枚举排序EnumSort-串行算法");
         else
@@ -106,12 +112,15 @@ public class EnumSort {
                 new_thread.start();
             }
         }
-        try {
-            barrier.await();
-        } catch (InterruptedException | BrokenBarrierException e) {
-            //TODO Auto-generated catch block
-            e.printStackTrace();
+        if(whe == 1){
+            try {
+                barrier.await();
+            } catch (InterruptedException | BrokenBarrierException e) {
+                //TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
+        
         return result;
     }
     
