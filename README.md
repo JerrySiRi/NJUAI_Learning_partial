@@ -3,7 +3,8 @@
 ## AML：advanced machine learning
 1. homework1：multi-classification LR、 SVM、 EM、 low-rank PCA、 Metric Learning
 2. homework2：sparse learning、 Graph Semi-supervised Learning、TSVM (python)
-3. homework3: Gaussian Mixture Module, EM approach, variational inference, reinforcement learning
+3. homework3: Gaussian Mixture Module, EM approach, Variational Inference, Reinforcement Rearning
+4. homework4：Computational learning theory, $\beta-$uniform stablity(Ridge Regression), Covering number & Hoeffding, Model based Reinforcement Rearning(MDP)
 
 ## DL：deep learning
 1. homework1：CNN、VAE (pytorch)
