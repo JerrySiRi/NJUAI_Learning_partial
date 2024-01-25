@@ -1,0 +1,41 @@
+html {
+  font-size: 10px; /* px 表示“像素（pixel）”: 基础字号为 10 像素 */
+  font-family: "Open Sans", sans-serif; /* 这应该是你从 Google Fonts 得到的其余输出。 */
+  background-color: #00539f;/*修改html整体颜色*/
+}
+h1 {
+  font-size: 60px;
+  text-align: center;/*标题居中*/
+  margin: 0;/*覆盖浏览器的默认样式。*/
+  padding: 20px 0;
+  color: #00539f;
+  text-shadow: 3px 3px 1px black;
+/*text-shadow 对元素的文本内容施加阴影*/
+/*
+1. 设置阴影与文本的水平偏移量：它横移的距离。
+2. 设置阴影与文本的垂直偏移量：它向下移动的距离。
+3. 设置阴影的模糊半径。一个更大的值会产生一个更模糊的阴影。
+4. 设置阴影的基色。
+*/
+}
+
+p,
+li {
+  font-size: 16px;
+  line-height: 2;/*行高*/
+  letter-spacing: 1px;/*字间距*/
+}
+
+body {
+  width: 600px;
+  margin: 0 auto;
+  background-color: #ff9500;
+  padding: 0 20px 20px 20px;
+  border: 5px solid black;/*宽度、样式和颜色*/
+}
+
+
+img {
+  display: block;
+  margin: 0 auto;/*左右margin相等就能居中了！！！*/
+}
