@@ -119,7 +119,7 @@ def normalize(data):# 数据归一化处理
     result = scaler.transform(data) #通过接口导出结果
     return result
 
-def standarize(data):#数据归一化处理
+def standarize(data):#数据标准化处理
     scaler = StandardScaler() #实例化
     scaler = scaler.fit(data) #fit，本质是生成均值和方差
     x_std = scaler.transform(data) #通过接口导出结果
