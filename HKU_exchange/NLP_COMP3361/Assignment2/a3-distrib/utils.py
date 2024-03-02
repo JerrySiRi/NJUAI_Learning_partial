@@ -1,6 +1,8 @@
 # utils.py
 
 
+# TODO：构建原始object和索引下标之间的双射
+# Indexer把传入的“内容（object）”映射成“从0开始的索引” -- 方便构建特征embedding
 class Indexer(object):
     """
     Bijection between objects and integers starting at 0. Useful for mapping
@@ -50,6 +52,7 @@ class Indexer(object):
         else:
             return self.objs_to_ints[object]
 
+# TODO：分配新的索引给当前object，构建索引--object的双射 == 两个字典
     def add_and_get_index(self, object, add=True):
         """
         Adds the object to the index if it isn't present, always returns a nonnegative index

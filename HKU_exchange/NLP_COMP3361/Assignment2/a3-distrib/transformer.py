@@ -9,6 +9,8 @@ from torch import optim
 import matplotlib.pyplot as plt
 from typing import List
 from utils import *
+import math
+import torch.nn.functional
 
 
 # Wraps an example: stores the raw input string (input), the indexed form of the string (input_indexed),
@@ -16,6 +18,9 @@ from utils import *
 # of it (output_tensor).
 # Per the task definition, the outputs are 0, 1, or 2 based on whether the character occurs 0, 1, or 2 or more
 # times previously in the input sequence (not counting the current occurrence).
+
+# TODO：对输入、输出进行格式化处理（原始格式 、张量化格式、 input的embedding（indexed格式！））
+# output是使用规则模型（for循环前后查找得到的正确结果）
 class LetterCountingExample(object):
     def __init__(self, input: str, output: np.array, vocab_index: Indexer):
         self.input = input
@@ -30,6 +35,8 @@ class LetterCountingExample(object):
 # to return distributions over the labels (0, 1, or 2).
 class Transformer(nn.Module):
     def __init__(self, vocab_size, num_positions, d_model, d_internal, num_classes, num_layers):
+        # model = Transformer(vocab_size=27, num_positions=20, 
+        # d_model=100, d_internal=50, num_classes=3, num_layers=1)
         """
         :param vocab_size: vocabulary size of the embedding layer
         :param num_positions: max sequence length that will be fed to the model; should be 20
@@ -39,7 +46,19 @@ class Transformer(nn.Module):
         :param num_layers: number of TransformerLayers to use; can be whatever you want
         """
         super().__init__()
-        raise Exception("Implement me")
+        # 整数索引序列 转换为对应的 词嵌入向量
+        # utils.py中对train和dev数据都已经进行了处理，已经生成了原始data的indexed后的数据！
+        # 此时只需要对indexed后的数据进行embedding转化就好啦！
+
+        # section 1: embedding (convert to input scale: d_model)
+        self.embedding_layer = nn.Embedding(vocab_size, d_model)
+        self.final_embedding_layer = PositionalEncoding(d_model, num_positions)
+        # section 2: Transformer (self-attention + feed-forward)
+        self.Transformer_layer = TransformerLayer(d_model, d_internal) # single layer【后续可以调整】
+        # section 3: linear + softmax
+        self.output_layer = nn.Linear(d_model, num_classes)
+
+
 
     def forward(self, indices):
         """
@@ -48,7 +67,20 @@ class Transformer(nn.Module):
         :return: A tuple of the softmax log probabilities (should be a 20x3 matrix) and a list of the attention
         maps you use in your layers (can be variable length, but each should be a 20x20 matrix)
         """
-        raise Exception("Implement me")
+        # indices是data中已经转化成索引形式的embedding。
+        # token_embdding是索引形式的embedding->实数embedding
+        # section 1
+        token_embedding = self.embedding_layer(indices)
+        final_embedding = self.final_embedding_layer.forward(token_embedding)
+        # section 2
+        trans_output, attention_output = self.Transformer_layer.forward(final_embedding)
+        # section 3
+       # print("---------", trans_output.size())
+        #  trans_output的size([20, 100])
+        linear_output = self.output_layer(trans_output)
+        softmax_output = torch.nn.functional.log_softmax(linear_output, dim = -1)
+
+        return softmax_output, attention_output
 
 
 # Your implementation of the Transformer layer goes here. It should take vectors and return the same number of vectors
@@ -62,10 +94,40 @@ class TransformerLayer(nn.Module):
         should both be of this length.
         """
         super().__init__()
-        raise Exception("Implement me")
+        # original one-head self-attention
+        self.W_Q_layer = torch.nn.Linear(d_model, d_internal)
+        self.W_K_layer = torch.nn.Linear(d_model, d_internal) # 此时假设Q,K,V不是方阵了！ 
+        self.W_V_layer = torch.nn.Linear(d_model, d_internal)
+        # 对每一行softmax（axis=1），每一行 = 一个query的权重
+        self.softmax_layer = torch.nn.Softmax(dim = 1)
+        self.d_internal = d_internal
+        self.linear_reshape = torch.nn.Linear(d_internal, d_model)
+
+        # feed-forward
+        self.feed_forward = nn.Sequential(torch.nn.Linear(d_model, 4*d_model),\
+                torch.nn.ReLU(),torch.nn.Linear(4*d_model, d_model))
 
     def forward(self, input_vecs):
-        raise Exception("Implement me")
+
+        # self-attention & residual
+        K = self.W_K_layer(input_vecs)
+        Q = self.W_Q_layer(input_vecs)
+        V = self.W_V_layer(input_vecs)
+        
+        # torch.matmul()函数用于执行两个张量的矩阵相乘操作
+        # torch.transpose(input, dim0, dim1),dim0和dim1是要交换的两个维度【任两个维度交换】
+        # trick: division by sqrt(d_internal)
+        Attention = self.softmax_layer(torch.matmul(Q, torch.transpose(K,0,1)) / math.sqrt(self.d_internal))
+        O_1 = torch.matmul(Attention, V)
+        O_residual_1 = self.linear_reshape(O_1) + input_vecs # output of self-attention & residual connection
+    
+        # feed-forward & residual 
+        O_2 = self.feed_forward(O_residual_1)
+        O_residual_2 = O_2 + O_residual_1
+        # BUG: 应该返回Attention矩阵，decode的时候解析每个token
+        #       来看每个位置token和其他所有位置token之间的关系。也即attention值
+        return O_residual_2, Attention
+        
 
 
 # Implementation of positional encoding that you can use in your network
@@ -76,7 +138,7 @@ class PositionalEncoding(nn.Module):
         added to character encodings, these need to match (and will match the dimension of the subsequent Transformer
         layer inputs/outputs)
         :param num_positions: the number of positions that need to be encoded; the maximum sequence length this
-        module will see
+        module will see【此时的数据长度是一致的，都是20】
         :param batched: True if you are using batching, False otherwise
         """
         super().__init__()
@@ -84,6 +146,8 @@ class PositionalEncoding(nn.Module):
         self.emb = nn.Embedding(num_positions, d_model)
         self.batched = batched
 
+# 此时传入的x是实数的embedding（是整数的embedding也无所谓），此函数只用一个input_size!!!
+# 最终返回position embedding + input embedding!!!
     def forward(self, x):
         """
         :param x: If using batching, should be [batch size, seq len, embedding dim]. Otherwise, [seq len, embedding dim]
@@ -103,13 +167,8 @@ class PositionalEncoding(nn.Module):
 
 # This is a skeleton for train_classifier: you can implement this however you want
 def train_classifier(args, train, dev):
-    raise Exception("Not fully implemented yet")
-
-    # The following code DOES NOT WORK but can be a starting point for your implementation
-    # Some suggested snippets to use:
-    model = Transformer(...)
-    model.zero_grad()
-    model.train()
+    model = Transformer(vocab_size=27, num_positions=20, \
+        d_model=100, d_internal=50, num_classes=3, num_layers=1)
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
 
     num_epochs = 10
@@ -120,14 +179,18 @@ def train_classifier(args, train, dev):
         ex_idxs = [i for i in range(0, len(train))]
         random.shuffle(ex_idxs)
         loss_fcn = nn.NLLLoss()
-        for ex_idx in ex_idxs:
-            loss = loss_fcn(...) # TODO: Run forward and compute loss
-            # model.zero_grad()
-            # loss.backward()
-            # optimizer.step()
+        for ex_idx in ex_idxs: # do not use batch
+            # TODO: Run forward and compute loss
+            ex = train[ex_idx]
+            model.zero_grad()
+            result, _ = model.forward(ex.input_tensor)
+            loss = loss_fcn(result, ex.output_tensor) 
+            loss.backward()
+            optimizer.step()       
             loss_this_epoch += loss.item()
     model.eval()
     return model
+
 
 
 ####################################
@@ -142,14 +205,17 @@ def decode(model: Transformer, dev_examples: List[LetterCountingExample], do_pri
     :param do_plot_attn: True if you want to write out plots for each example, false otherwise
     :return:
     """
+    # 统计正确的预测数量 和 总预测数量
     num_correct = 0
     num_total = 0
+    # 验证集样例过长，就不打印 & 不画图了
     if len(dev_examples) > 100:
         print("Decoding on a large number of examples (%i); not printing or plotting" % len(dev_examples))
         do_print = False
         do_plot_attn = False
     for i in range(0, len(dev_examples)):
         ex = dev_examples[i]
+        # 获取模型的输出log概率（softmax后结果） 和 attention输出（self-attention & residual connection后）
         (log_probs, attn_maps) = model.forward(ex.input_tensor)
         predictions = np.argmax(log_probs.detach().numpy(), axis=1)
         if do_print:
@@ -160,6 +226,7 @@ def decode(model: Transformer, dev_examples: List[LetterCountingExample], do_pri
             for j in range(0, len(attn_maps)):
                 attn_map = attn_maps[j]
                 fig, ax = plt.subplots()
+                # `imshow`函数是matplotlib库中用于绘制图像的函数
                 im = ax.imshow(attn_map.detach().numpy(), cmap='hot', interpolation='nearest')
                 ax.set_xticks(np.arange(len(ex.input)), labels=ex.input)
                 ax.set_yticks(np.arange(len(ex.input)), labels=ex.input)
