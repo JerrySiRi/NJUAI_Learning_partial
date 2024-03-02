@@ -103,6 +103,7 @@ if __name__ == '__main__':
     # 难道不是只用train.txt的信息，dev.txt验证fitting程度后，再把两个数据集同时作为training data来train？
 
     # Decodes the first 5 dev examples to display as output
+    # 此时do_plot_attn设置成True还是有问题的，不论attention返还的是softmax后的，还是乘矩阵V的
     decode(model, dev_bundles[0:5], do_print=True, do_plot_attn=True)
     # Decodes 100 training examples and the entire dev set (1000 examples)
     print("Training accuracy (100 exs):")
@@ -142,4 +143,34 @@ Dev accuracy (whole set):
 Decoding on a large number of examples (1000); not printing or plotting
 Accuracy: 17702 / 20000 = 0.885100
 Duration: 408.08643341064453s
+"""
+
+"""
+INPUT 0: heir average albedo
+GOLD 0: array([0, 2, 0, 1, 2, 2, 0, 2, 1, 2, 0, 2, 2, 2, 0, 0, 2, 0, 0, 2])
+PRED 0: array([0, 2, 0, 1, 2, 2, 0, 2, 1, 2, 0, 2, 2, 2, 0, 0, 2, 0, 0, 2],
+      dtype=int64)
+INPUT 1: ed by rank and file
+GOLD 1: array([1, 1, 2, 0, 0, 2, 0, 1, 1, 0, 2, 1, 1, 1, 2, 0, 0, 0, 1, 2])
+PRED 1: array([1, 1, 2, 0, 0, 2, 0, 1, 1, 0, 2, 1, 1, 1, 2, 0, 0, 0, 1, 2],
+      dtype=int64)
+INPUT 2: s can also extend in
+GOLD 2: array([1, 2, 0, 1, 2, 2, 1, 0, 1, 0, 2, 1, 0, 0, 1, 2, 0, 2, 0, 2])
+PRED 2: array([1, 2, 0, 1, 2, 2, 1, 0, 1, 1, 2, 1, 0, 0, 1, 2, 0, 2, 0, 2],
+      dtype=int64)
+INPUT 3: erages between nine
+GOLD 3: array([2, 0, 0, 0, 2, 0, 2, 0, 2, 0, 0, 2, 2, 2, 2, 2, 0, 2, 2, 2])
+PRED 3: array([2, 0, 0, 0, 2, 0, 2, 0, 2, 0, 0, 2, 2, 2, 2, 2, 0, 2, 2, 2],
+      dtype=int64)
+INPUT 4:  that civilization n
+GOLD 4: array([2, 2, 0, 1, 2, 2, 0, 2, 0, 2, 0, 2, 0, 1, 2, 2, 0, 1, 2, 1])
+PRED 4: array([2, 2, 0, 1, 2, 2, 0, 2, 0, 2, 0, 2, 0, 1, 2, 2, 0, 1, 2, 1],
+      dtype=int64)
+Accuracy: 99 / 100 = 0.990000
+Training accuracy (100 exs):
+Accuracy: 1923 / 2000 = 0.961500
+Dev accuracy (whole set):
+Decoding on a large number of examples (1000); not printing or plotting
+Accuracy: 19124 / 20000 = 0.956200
+Duration: 440.35349011421204s
 """

@@ -118,9 +118,13 @@ class TransformerLayer(nn.Module):
         # torch.transpose(input, dim0, dim1),dim0和dim1是要交换的两个维度【任两个维度交换】
         # trick: division by sqrt(d_internal)
         Attention = self.softmax_layer(torch.matmul(Q, torch.transpose(K,0,1)) / math.sqrt(self.d_internal))
+        #print("attention value size = ",Attention.size())
+        # attention value size =  torch.Size([20, 20])
+        # attention multiply size =  torch.Size([20, 100]
         O_1 = torch.matmul(Attention, V)
         O_residual_1 = self.linear_reshape(O_1) + input_vecs # output of self-attention & residual connection
-    
+        #print("attention multiply size = ", O_residual_1.size())
+
         # feed-forward & residual 
         O_2 = self.feed_forward(O_residual_1)
         O_residual_2 = O_2 + O_residual_1
@@ -223,7 +227,8 @@ def decode(model: Transformer, dev_examples: List[LetterCountingExample], do_pri
             print("GOLD %i: %s" % (i, repr(ex.output.astype(dtype=int))))
             print("PRED %i: %s" % (i, repr(predictions)))
         if do_plot_attn:
-            for j in range(0, len(attn_maps)):
+            """
+            for j in range(0, len(attn_maps)): # 使用batch时，每一个attn_maps的元素是一个batch的attention
                 attn_map = attn_maps[j]
                 fig, ax = plt.subplots()
                 # `imshow`函数是matplotlib库中用于绘制图像的函数
@@ -233,6 +238,17 @@ def decode(model: Transformer, dev_examples: List[LetterCountingExample], do_pri
                 ax.xaxis.tick_top()
                 # plt.show()
                 plt.savefig("plots/%i_attns%i.png" % (i, j))
+            """
+            attn_map = attn_maps # 没有采用batch的方案
+            fig, ax = plt.subplots()
+            # `imshow`函数是matplotlib库中用于绘制图像的函数
+            im = ax.imshow(attn_map.detach().numpy(), cmap='hot', interpolation='nearest')
+            ax.set_xticks(np.arange(len(ex.input)), labels=ex.input)
+            ax.set_yticks(np.arange(len(ex.input)), labels=ex.input)
+            ax.xaxis.tick_top()
+            # plt.show()
+            plt.savefig("plots/{0}_attns{1}.png".format(i, "without_batch"))
+            
         acc = sum([predictions[i] == ex.output[i] for i in range(0, len(predictions))])
         num_correct += acc
         num_total += len(predictions)
