@@ -11,7 +11,7 @@ from typing import List
 from utils import *
 import math
 import torch.nn.functional
-
+import os
 
 # Wraps an example: stores the raw input string (input), the indexed form of the string (input_indexed),
 # a tensorized version of that (input_tensor), the raw outputs (output; a numpy array) and a tensorized version
@@ -53,8 +53,16 @@ class Transformer(nn.Module):
         # section 1: embedding (convert to input scale: d_model)
         self.embedding_layer = nn.Embedding(vocab_size, d_model)
         self.final_embedding_layer = PositionalEncoding(d_model, num_positions)
+
         # section 2: Transformer (self-attention + feed-forward)
-        self.Transformer_layer = TransformerLayer(d_model, d_internal) # single layer【后续可以调整】
+        # [single layer] self.Transformer_layer = TransformerLayer(d_model, d_internal)
+        # [multiple layers]
+        list_Transformer_layer = []
+        for _ in range(0, num_layers-1):
+            list_Transformer_layer.append(TransformerLayer(d_model, d_internal, True)) # no attention map
+        list_Transformer_layer.append(TransformerLayer(d_model, d_internal, False)) # add attention map
+        self.Transfomer_layer = nn.Sequential(*list_Transformer_layer)
+
         # section 3: linear + softmax
         self.output_layer = nn.Linear(d_model, num_classes)
 
@@ -70,10 +78,16 @@ class Transformer(nn.Module):
         # indices是data中已经转化成索引形式的embedding。
         # token_embdding是索引形式的embedding->实数embedding
         # section 1
+        final_embedding = None
+        attention_output = None
         token_embedding = self.embedding_layer(indices)
         final_embedding = self.final_embedding_layer.forward(token_embedding)
+
         # section 2
-        trans_output, attention_output = self.Transformer_layer.forward(final_embedding)
+        # [single layer] trans_output,attention_output = self.Transformer_layer.forward(final_embedding)
+        # [multiple layers]
+        trans_output, attention_output = self.Transfomer_layer.forward(final_embedding)
+
         # section 3
        # print("---------", trans_output.size())
         #  trans_output的size([20, 100])
@@ -86,7 +100,7 @@ class Transformer(nn.Module):
 # Your implementation of the Transformer layer goes here. It should take vectors and return the same number of vectors
 # of the same length, applying self-attention, the feedforward layer, etc.
 class TransformerLayer(nn.Module):
-    def __init__(self, d_model, d_internal):
+    def __init__(self, d_model, d_internal,no_attention = False):
         """
         :param d_model: The dimension of the inputs and outputs of the layer (note that the inputs and outputs
         have to be the same size for the residual connection to work)
@@ -102,6 +116,7 @@ class TransformerLayer(nn.Module):
         self.softmax_layer = torch.nn.Softmax(dim = 1)
         self.d_internal = d_internal
         self.linear_reshape = torch.nn.Linear(d_internal, d_model)
+        self.no_attention = no_attention
 
         # feed-forward
         self.feed_forward = nn.Sequential(torch.nn.Linear(d_model, 4*d_model),\
@@ -130,6 +145,8 @@ class TransformerLayer(nn.Module):
         O_residual_2 = O_2 + O_residual_1
         # BUG: 应该返回Attention矩阵，decode的时候解析每个token
         #       来看每个位置token和其他所有位置token之间的关系。也即attention值
+        if self.no_attention == True:
+            return O_residual_2
         return O_residual_2, Attention
         
 
@@ -170,9 +187,10 @@ class PositionalEncoding(nn.Module):
 
 
 # This is a skeleton for train_classifier: you can implement this however you want
-def train_classifier(args, train, dev):
+def train_classifier(args, train, dev, num = 1):
+    print("current number of layers is ",num)
     model = Transformer(vocab_size=27, num_positions=20, \
-        d_model=100, d_internal=50, num_classes=3, num_layers=1)
+        d_model=100, d_internal=50, num_classes=3, num_layers = num)
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
 
     num_epochs = 10
@@ -180,15 +198,15 @@ def train_classifier(args, train, dev):
         loss_this_epoch = 0.0
         random.seed(t)
         # You can use batching if you'd like
-        ex_idxs = [i for i in range(0, len(train))]
-        random.shuffle(ex_idxs)
-        loss_fcn = nn.NLLLoss()
-        for ex_idx in ex_idxs: # do not use batch
+        valid_index = [i for i in range(0, len(train))]
+        random.shuffle(valid_index)
+        loss_function = nn.NLLLoss()
+        for index in valid_index: # do not use batch
             # TODO: Run forward and compute loss
-            ex = train[ex_idx]
+            ex = train[index]
             model.zero_grad()
             result, _ = model.forward(ex.input_tensor)
-            loss = loss_fcn(result, ex.output_tensor) 
+            loss = loss_function(result, ex.output_tensor) 
             loss.backward()
             optimizer.step()       
             loss_this_epoch += loss.item()
@@ -247,7 +265,9 @@ def decode(model: Transformer, dev_examples: List[LetterCountingExample], do_pri
             ax.set_yticks(np.arange(len(ex.input)), labels=ex.input)
             ax.xaxis.tick_top()
             # plt.show()
-            plt.savefig("plots/{0}_attns{1}.png".format(i, "without_batch"))
+            if not os.path.exists('plots'):
+                os.mkdir('plots')
+            plt.savefig("plots/{0}_attns_{1}.png".format(i, "without_batch"))
             
         acc = sum([predictions[i] == ex.output[i] for i in range(0, len(predictions))])
         num_correct += acc

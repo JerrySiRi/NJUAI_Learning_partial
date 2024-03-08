@@ -125,10 +125,13 @@ if __name__ == '__main__':
     args = _parse_args()
     print(args)
 
+    # train_text & dev_text是一个完整的string
+    # 需要自己进行string -> int index -> nn.Embedding 
     train_text = read_text(args.train_path)
     dev_text = read_text(args.dev_path)
 
     # Vocabs is lowercase letters a to z and space
+    # 构建vocabulary和0-26间的映射关系，第一次embedding到整数（nn.Embedding所必需的）
     vocab = [chr(ord('a') + i) for i in range(0, 26)] + [' ']
     vocab_index = Indexer()
     for char in vocab:
@@ -139,6 +142,7 @@ if __name__ == '__main__':
     print(train_text[0:100])
     # Train our model
     if args.model == "NEURAL":
+        # 传入的vocab_index是已经构建好的 sting <-> int 的双射字典
         model = train_lm(args, train_text, dev_text, vocab_index)
     elif args.model == "UNIFORM":
         model = UniformLanguageModel(len(vocab))
@@ -146,3 +150,5 @@ if __name__ == '__main__':
         raise Exception("Pass in either UNIFORM or NEURAL to run the appropriate system")
 
     print_evaluation(dev_text, model, vocab_index, args.output_bundle_path)
+    end_time = time.time()
+    print("Entire time of training and evaluating is ", end_time-start_time)

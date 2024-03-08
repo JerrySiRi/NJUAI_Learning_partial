@@ -58,6 +58,7 @@ def get_letter_count_output(input: str, count_only_previous: bool=True) -> np.ar
 
 if __name__ == '__main__':
     start_time = time.time()
+
     args = _parse_args()
     print(args)
 
@@ -95,8 +96,10 @@ if __name__ == '__main__':
     dev_bundles = \
         [LetterCountingExample(l, get_letter_count_output(l, count_only_previous), vocab_index) \
              for l in dev_exs]
+      
+    num_layers = 2
+    model = train_classifier(args, train_bundles, dev_bundles, num_layers)
 
-    model = train_classifier(args, train_bundles, dev_bundles)
 
     # 【？】train model的时候，传入dev的信息干什么？
     # 难道是train、dev的信息都train，之后再只在dev上检验一下fitting的程度？
@@ -113,7 +116,11 @@ if __name__ == '__main__':
     end_time = time.time()
     print("Duration: {0}s".format(end_time-start_time))
 
+
+# NOTE: answer of Q0
+
 """
+------Q0--------
 10000 lines read in
 1000 lines read in
 INPUT 0: heir average albedo
@@ -145,7 +152,10 @@ Accuracy: 17702 / 20000 = 0.885100
 Duration: 408.08643341064453s
 """
 
+# NOTE: answer of Q1
 """
+------Q1-----
+current number of layers is  1
 INPUT 0: heir average albedo
 GOLD 0: array([0, 2, 0, 1, 2, 2, 0, 2, 1, 2, 0, 2, 2, 2, 0, 0, 2, 0, 0, 2])
 PRED 0: array([0, 2, 0, 1, 2, 2, 0, 2, 1, 2, 0, 2, 2, 2, 0, 0, 2, 0, 0, 2],
@@ -173,4 +183,116 @@ Dev accuracy (whole set):
 Decoding on a large number of examples (1000); not printing or plotting
 Accuracy: 19124 / 20000 = 0.956200
 Duration: 440.35349011421204s
+"""
+
+"""
+current number of layers is  1
+10000 lines read in
+1000 lines read in
+INPUT 0: heir average albedo
+GOLD 0: array([0, 2, 0, 1, 2, 2, 0, 2, 1, 2, 0, 2, 2, 2, 0, 0, 2, 0, 0, 2])
+PRED 0: array([0, 2, 0, 1, 2, 2, 0, 2, 1, 2, 0, 2, 2, 2, 0, 0, 2, 0, 0, 2],
+      dtype=int64)
+INPUT 1: ed by rank and file
+GOLD 1: array([1, 1, 2, 0, 0, 2, 0, 1, 1, 0, 2, 1, 1, 1, 2, 0, 0, 0, 1, 2])
+PRED 1: array([1, 1, 2, 0, 0, 2, 0, 1, 1, 0, 2, 1, 1, 1, 2, 0, 0, 0, 1, 2],
+      dtype=int64)
+INPUT 2: s can also extend in
+GOLD 2: array([1, 2, 0, 1, 2, 2, 1, 0, 1, 0, 2, 1, 0, 0, 1, 2, 0, 2, 0, 2])
+PRED 2: array([1, 2, 0, 1, 2, 2, 1, 0, 1, 0, 2, 1, 0, 0, 1, 2, 0, 2, 0, 2],
+      dtype=int64)
+INPUT 3: erages between nine
+GOLD 3: array([2, 0, 0, 0, 2, 0, 2, 0, 2, 0, 0, 2, 2, 2, 2, 2, 0, 2, 2, 2])
+PRED 3: array([2, 0, 0, 0, 2, 0, 2, 0, 2, 0, 0, 2, 2, 2, 2, 2, 0, 2, 2, 2],
+      dtype=int64)
+INPUT 4:  that civilization n
+GOLD 4: array([2, 2, 0, 1, 2, 2, 0, 2, 0, 2, 0, 2, 0, 1, 2, 2, 0, 1, 2, 1])
+PRED 4: array([2, 2, 0, 1, 2, 2, 0, 2, 0, 2, 0, 2, 0, 1, 2, 2, 0, 1, 2, 1],
+      dtype=int64)
+Accuracy: 100 / 100 = 1.000000
+Training accuracy (100 exs):
+Accuracy: 2000 / 2000 = 1.000000
+Dev accuracy (whole set):
+Decoding on a large number of examples (1000); not printing or plotting
+Accuracy: 19990 / 20000 = 0.999500
+Duration: 413.48118710517883s
+"""
+
+# NOTE: answer of Q3
+"""
+----Q3----
+current number of layers is  1
+Accuracy: 100 / 100 = 1.000000
+Training accuracy (100 exs):
+Accuracy: 1968 / 2000 = 0.984000
+Dev accuracy (whole set):
+Decoding on a large number of examples (1000); not printing or plotting
+Accuracy: 19566 / 20000 = 0.978300
+Duration: 421.6342086791992s
+"""
+
+"""
+----Q3----
+10000 lines read in
+1000 lines read in
+current number of layers is  2
+INPUT 0: heir average albedo
+GOLD 0: array([0, 2, 0, 1, 2, 2, 0, 2, 1, 2, 0, 2, 2, 2, 0, 0, 2, 0, 0, 2])
+PRED 0: array([0, 2, 0, 1, 2, 2, 0, 2, 1, 2, 0, 2, 2, 2, 0, 0, 2, 0, 0, 2],
+      dtype=int64)
+INPUT 1: ed by rank and file
+GOLD 1: array([1, 1, 2, 0, 0, 2, 0, 1, 1, 0, 2, 1, 1, 1, 2, 0, 0, 0, 1, 2])
+PRED 1: array([1, 1, 2, 0, 0, 2, 0, 1, 1, 0, 2, 1, 1, 1, 2, 0, 0, 0, 1, 2],
+      dtype=int64)
+INPUT 2: s can also extend in
+GOLD 2: array([1, 2, 0, 1, 2, 2, 1, 0, 1, 0, 2, 1, 0, 0, 1, 2, 0, 2, 0, 2])
+PRED 2: array([1, 2, 0, 1, 2, 2, 1, 0, 1, 0, 2, 1, 0, 0, 1, 2, 0, 2, 0, 2],
+      dtype=int64)
+INPUT 3: erages between nine
+GOLD 3: array([2, 0, 0, 0, 2, 0, 2, 0, 2, 0, 0, 2, 2, 2, 2, 2, 0, 2, 2, 2])
+PRED 3: array([2, 0, 0, 0, 2, 0, 2, 0, 2, 0, 0, 2, 2, 2, 2, 2, 0, 2, 2, 2],
+      dtype=int64)
+INPUT 4:  that civilization n
+GOLD 4: array([2, 2, 0, 1, 2, 2, 0, 2, 0, 2, 0, 2, 0, 1, 2, 2, 0, 1, 2, 1])
+PRED 4: array([2, 2, 0, 1, 2, 2, 0, 2, 0, 2, 0, 2, 0, 1, 2, 2, 0, 1, 2, 1],
+      dtype=int64)
+Accuracy: 100 / 100 = 1.000000
+Training accuracy (100 exs):
+Accuracy: 1995 / 2000 = 0.997500
+Dev accuracy (whole set):
+Decoding on a large number of examples (1000); not printing or plotting
+Accuracy: 19916 / 20000 = 0.995800
+Duration: 723.2419455051422s
+"""
+
+"""
+----Q3----
+current number of layers is  3
+INPUT 0: heir average albedo
+GOLD 0: array([0, 2, 0, 1, 2, 2, 0, 2, 1, 2, 0, 2, 2, 2, 0, 0, 2, 0, 0, 2])
+PRED 0: array([0, 2, 0, 1, 2, 2, 0, 2, 1, 2, 0, 2, 2, 2, 0, 0, 2, 0, 0, 2],
+      dtype=int64)
+INPUT 1: ed by rank and file
+GOLD 1: array([1, 1, 2, 0, 0, 2, 0, 1, 1, 0, 2, 1, 1, 1, 2, 0, 0, 0, 1, 2])
+PRED 1: array([1, 1, 2, 0, 0, 2, 0, 1, 1, 0, 2, 1, 1, 1, 2, 0, 0, 0, 1, 2],
+      dtype=int64)
+INPUT 2: s can also extend in
+GOLD 2: array([1, 2, 0, 1, 2, 2, 1, 0, 1, 0, 2, 1, 0, 0, 1, 2, 0, 2, 0, 2])
+PRED 2: array([1, 2, 0, 1, 2, 2, 1, 0, 1, 0, 2, 1, 0, 0, 1, 2, 0, 2, 0, 2],
+      dtype=int64)
+INPUT 3: erages between nine
+GOLD 3: array([2, 0, 0, 0, 2, 0, 2, 0, 2, 0, 0, 2, 2, 2, 2, 2, 0, 2, 2, 2])
+PRED 3: array([2, 0, 0, 0, 2, 0, 2, 0, 2, 0, 0, 2, 2, 2, 2, 2, 0, 2, 2, 2],
+      dtype=int64)
+INPUT 4:  that civilization n
+GOLD 4: array([2, 2, 0, 1, 2, 2, 0, 2, 0, 2, 0, 2, 0, 1, 2, 2, 0, 1, 2, 1])
+PRED 4: array([2, 2, 0, 1, 2, 2, 0, 2, 0, 2, 0, 2, 0, 1, 2, 2, 0, 1, 2, 1],
+      dtype=int64)
+Accuracy: 100 / 100 = 1.000000
+Training accuracy (100 exs):
+Accuracy: 1969 / 2000 = 0.984500
+Dev accuracy (whole set):
+Decoding on a large number of examples (1000); not printing or plotting
+Accuracy: 19748 / 20000 = 0.987400
+Duration: 3867.4827818870544s
 """
