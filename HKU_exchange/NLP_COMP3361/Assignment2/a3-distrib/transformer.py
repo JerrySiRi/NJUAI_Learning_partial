@@ -201,14 +201,14 @@ def train_classifier(args, train, dev, num = 1):
         valid_index = [i for i in range(0, len(train))]
         random.shuffle(valid_index)
         loss_function = nn.NLLLoss()
-        for index in valid_index: # do not use batch
+        for index in valid_index: # do not use batch 打乱原数据排序shuffle
             # TODO: Run forward and compute loss
             ex = train[index]
-            model.zero_grad()
-            result, _ = model.forward(ex.input_tensor)
-            loss = loss_function(result, ex.output_tensor) 
-            loss.backward()
-            optimizer.step()       
+            model.zero_grad() # 清空梯度
+            result, _ = model.forward(ex.input_tensor) # 前向计算结果 
+            loss = loss_function(result, ex.output_tensor) # 计算loss
+            loss.backward() # 反向传播计算梯度 
+            optimizer.step() # 依梯度来更新参数
             loss_this_epoch += loss.item()
     model.eval()
     return model
