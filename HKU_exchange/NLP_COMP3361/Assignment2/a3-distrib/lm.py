@@ -51,6 +51,8 @@ def run_sanity_check(lm, vocab_index):
     sane = True
     for context in contexts:
         for next_seq in next_seqs:
+            print("next_seq=",next_seq,"context=",context)
+            # BUG: 可能是因为sentence的预测时，把许多空格都给补上了，导致概率不一样
             log_prob = lm.get_log_prob_sequence(next_seq, context)
             if log_prob > 0.0:
                 sane = False
@@ -106,8 +108,9 @@ def print_evaluation(text, lm, vocab_index, output_bundle_path):
     :param lm: model to evaluate
     :param output_bundle_path: the path to print the output bundle to, in addition to printing it
     """
+    
     sane = run_sanity_check(lm, vocab_index)
-    log_prob = lm.get_log_prob_sequence(text, "")
+    log_prob = lm.get_log_prob_sequence(text, " ")
     avg_log_prob = log_prob/len(text)
     perplexity = np.exp(-log_prob / len(text))
     normalizes = normalization_test(lm, vocab_index)

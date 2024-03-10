@@ -4,6 +4,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from transformer import *
+from lm import print_evaluation # BUG: 不能相互import *，只相互import各自的一部分（某个函数）还是可以的
 
 
 
@@ -52,25 +53,40 @@ class UniformLanguageModel(LanguageModel):
 
 # testing phase !!!
 class NeuralLanguageModel(LanguageModel):
-    def __init__(self, trained_Transformer, chunk_size):
+    def __init__(self, trained_Transformer, chunk_size, vocab_index):
         self.model = trained_Transformer # finish training in train_lm
         self.chunk_size = chunk_size
+        self.vocab_index = vocab_index
         
 
     def get_next_char_log_probs(self, context):
         # assume input context is preprocessed into length below chunk_size
-        if len(context) == 0:
-            context = " "
-        elif len(context) > self.chunk_size:
-            context = context[-self.chunk_size:]
-
+        # TODO: 依据已有的context估计下一个char的log pro
+        if type(context) == str:
+            context = [self.vocab_index.index_of(char) for char in context]
         prediction = self.model(context)
         res = prediction.detach().numpy()
-        return res[ len(res)-1 ]
+        # print("---Finish next char log probs---")
+        return res[ len(res)-1 ][0]
 
 
-    def get_log_prob_sequence(self, next_chars, context):
-        raise Exception("Implement me")
+    def get_log_prob_sequence(self, next_chars, initial_context):
+        # print_evaluation中调用 -- log_prob = lm.get_log_prob_sequence(text, "")
+        # context是已经有的序列
+        # next_chars是在已经有的序列上，下一个token是他。来算它的概率
+        # 
+        log_sum = 0
+        cur_context = initial_context
+        if type(initial_context) == str:
+            cur_context = [self.vocab_index.index_of(char) for char in initial_context]
+        next_chars_chunks = text_chunking_indexed(next_chars, self.chunk_size, self.vocab_index)
+        for chunk in next_chars_chunks:
+            for next_indexed in chunk:
+                cur_context = cur_context[-self.chunk_size+1:] # 防止不断加入超过chunk_size上限
+                dist = self.get_next_char_log_probs(np.array(cur_context))
+                log_sum += dist[next_indexed]
+                cur_context.append(next_indexed)
+        return log_sum
 
 # 需要完成的任务：
 # 1. embedding：从string -> int index -> nn.Embedding 
@@ -100,37 +116,41 @@ class Transformer(nn.Module):
         # 2. model: 给TransformerEncoder的输入应该呈形(chunk_size, batch_size, d_model)
         self.model_layer = nn.TransformerEncoderLayer(d_model = d_model, \
             nhead = num_head, dim_feedforward = 4*d_model)
-        self.tran_model = nn.TransformerEncoder(self.model_layer, num_layers=num_layers)
+        self.trans_model = nn.TransformerEncoder(self.model_layer, num_layers=num_layers)
 
         # add: output log probability
         self.convert_to_output = nn.Linear(d_model, self.vocab_size) # output size = self.vocab_size (27 classes)
-        self.softmax = torch.nn.LogSoftmax(dim=1)
+        self.softmax = torch.nn.LogSoftmax(dim = -1)
 
-        # mask: use when call self.model \\\ i.e output_tensor = transformer_encoder(input_tensor, mask=mask_tensor)
-        self.mask_tensor = torch.zeros(chunk_size, chunk_size, dtype=torch.bool)
-        for i in range(0, chunk_size):
-            for j in range(i+1, chunk_size):
-                self.mask_tensor[i,j] = True
-        
-
-    def forward(self, context):
+       
+    def forward(self, indexed_context):
         """
         context: after chunking the original text
         **should reshape to (chunk_size, batch_size, input_dim)
         """
         # 1. embedding
-        int_embedding = np.array([self.s2i_index.index_of(char) for char in context])
-        final_embedding = self.final_embedding_layer(self.i2e_index(torch.LongTensor(int_embedding)))
+        # int_embedding = np.array([self.s2i_index.index_of(char) for char in context])
+        final_embedding = self.final_embedding_layer(self.i2e_index(torch.LongTensor(indexed_context)))
 
-        # 2. compute result 
-        final_embedding = final_embedding.reshape((20,1,100)) # mimic dimension when using batch
-        temp_output = self.tran_model(final_embedding, self.mask_tensor) # call transformer & mask 
+        # 2. mask & compute result 
+        # mask: use when call self.model \\\ i.e output_tensor = transformer_encoder(input_tensor, mask=mask_tensor)
+        mask_tensor = torch.zeros(len(indexed_context), len(indexed_context), dtype=torch.bool)
+        for i in range(0, len(indexed_context)):
+            for j in range(i+1, len(indexed_context)):
+                mask_tensor[i,j] = True
+
+        final_embedding = final_embedding.reshape((final_embedding.shape[0],1,\
+            final_embedding.shape[1])) # imitate dimension when using batch
+        temp_output = self.trans_model(final_embedding, mask_tensor) # call transformer & mask 
+        
         
         # 3. convert output
-        final_output = self.softmax(self.convert_to_output(temp_output))
-        return final_output
+        o1 = self.convert_to_output(temp_output)
+        # o1 = torch.Tensor(o1).squeeze()
+        o2 = self.softmax(o1)
+        return o2
 
-def text_chunking(text, chunk_size):
+def text_chunking_indexed(text, chunk_size, vocab_index, need_index=True):
     """
     Function: Chunk the input text -> several specific size of texts 
     Tip: overload space and use that as the start-of-sequence character
@@ -139,7 +159,15 @@ def text_chunking(text, chunk_size):
     for chunk in chunks:
         while len(chunk) < chunk_size:
             chunk.append(' ')
-    return chunks
+    
+    if need_index == True:
+        indexed_chunk = []
+        for chunk in chunks:
+            int_embedding = np.array([vocab_index.index_of(char) for char in chunk])
+            indexed_chunk.append(int_embedding)
+        return indexed_chunk
+    else:
+        return chunks
 
 # 【不可以改参数，会import这个函数来测试的】
 def train_lm(args, train_text, dev_text, vocab_index):
@@ -160,26 +188,24 @@ def train_lm(args, train_text, dev_text, vocab_index):
     model.train() # 继承的nn.Module,在训练模型时候，需要调.train()，让子模块全部转到训练状态
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
 
-    num_epochs = 5
-    for t in range(0, num_epochs):
+    num_epoches = 5
+    for t in range(0, num_epoches):
         # You can use batching if you'd like
         loss_function = nn.NLLLoss() # cross extropy for longtensor type
         count = 0
-        chunks_list = text_chunking(train_text, chunk_size)
+        chunks_list = text_chunking_indexed(train_text, chunk_size, vocab_index)
         chunk_idxs = [i for i in range(0, len(chunks_list))]
         random.seed(t)
-        random.shuffle(chunk_idxs)
+        random.shuffle(chunk_idxs) # 打乱坐标来训练
         for ex_idx in chunk_idxs:
-            current_context = chunks_list[ex_idx]
+            current_indexed_context = chunks_list[ex_idx]
 
-            # padding = torch.LongTensor([26])
-            # input_tensor = torch.cat((padding,input_tensor[0:-1]))
-            log_probs = model(current_context) # 继承了nn.Module时，直接调用model(input)就可以直接得到模型输出！！！
+            # current_indexed_context = [26  8 13  3 20 18 19 17  8  0 11 26 22 14 17 10  4 17 18 26]
+            log_probs = model(current_indexed_context) # 继承了nn.Module时，直接调用model(input)就可以直接得到模型输出！！！
             log_probs = torch.Tensor(log_probs).squeeze()
             
             # BUG!!! log_probs全是0？？梯度根本没法更新！！
-            input_indexed = np.array([vocab_index.index_of(ci) for ci in current_context])
-            expect_tensor = torch.Tensor(input_indexed).long()
+            expect_tensor = torch.Tensor(current_indexed_context).long()
             
             loss = loss_function(log_probs, expect_tensor)
             loss_val = loss.detach().cpu().numpy()   
@@ -189,12 +215,15 @@ def train_lm(args, train_text, dev_text, vocab_index):
             optimizer.step()
 
             count = count+1
-            if count%50==0:
+            if count % 200 == 0:
                 print(loss_val)
-                print_evaluation(dev_text, NeuralLanguageModel(model, vocab_index, chunk_size), vocab_index, args.output_bundle_path)
+                model.eval()
+                print_evaluation(dev_text, \
+                    NeuralLanguageModel(model, chunk_size, vocab_index), vocab_index, args.output_bundle_path)
+                model.train()
                 
     model.eval()
-    return NeuralLanguageModel(model, vocab_index, chunk_size)
+    return NeuralLanguageModel(model, chunk_size, vocab_index)
 
             
             
