@@ -62,30 +62,32 @@ class NeuralLanguageModel(LanguageModel):
     def get_next_char_log_probs(self, context):
         # assume input context is preprocessed into length below chunk_size
         # TODO: 依据已有的context估计下一个char的log pro
+        #print("===char===")
         if type(context) == str:
             context = [self.vocab_index.index_of(char) for char in context]
-        prediction = self.model(context)
+        chunk_context = context[-self.chunk_size+1: ]
+        prediction = self.model(chunk_context)
         res = prediction.detach().numpy()
         # print("---Finish next char log probs---")
-        return res[ len(res)-1 ][0]
+        return res[ len(res)-1 ][0] # batch -- squeeze the dimension only have 1 element
 
 
     def get_log_prob_sequence(self, next_chars, initial_context):
         # print_evaluation中调用 -- log_prob = lm.get_log_prob_sequence(text, "")
         # context是已经有的序列
-        # next_chars是在已经有的序列上，下一个token是他。来算它的概率
-        # 
+        # next_chars是在已经有的序列上，下一个token(从next_chars这个sequence中拿)是他。来算它的概率
         log_sum = 0
         cur_context = initial_context
         if type(initial_context) == str:
             cur_context = [self.vocab_index.index_of(char) for char in initial_context]
-        next_chars_chunks = text_chunking_indexed(next_chars, self.chunk_size, self.vocab_index)
-        for chunk in next_chars_chunks:
-            for next_indexed in chunk:
-                cur_context = cur_context[-self.chunk_size+1:] # 防止不断加入超过chunk_size上限
-                dist = self.get_next_char_log_probs(np.array(cur_context))
-                log_sum += dist[next_indexed]
-                cur_context.append(next_indexed)
+        if type(next_chars) == str:
+            next_chars = [self.vocab_index.index_of(char) for char in next_chars]
+        for acc_index in next_chars:
+            cur_context = cur_context[-self.chunk_size+1:] # 防止不断加入超过chunk_size上限
+            #print(cur_context)
+            dist = self.get_next_char_log_probs(np.array(cur_context))
+            log_sum += dist[acc_index]
+            cur_context.append(acc_index)
         return log_sum
 
 # 需要完成的任务：
@@ -150,24 +152,28 @@ class Transformer(nn.Module):
         o2 = self.softmax(o1)
         return o2
 
-def text_chunking_indexed(text, chunk_size, vocab_index, need_index=True):
+def text_chunking_indexed(text, chunk_size, vocab_index, need_whitespace=True):
     """
     Function: Chunk the input text -> several specific size of texts 
     Tip: overload space and use that as the start-of-sequence character
     """
-    chunks = [list(" " + text[i:i + chunk_size-1]) for i in range(0, len(text), chunk_size)]
-    for chunk in chunks:
-        while len(chunk) < chunk_size:
-            chunk.append(' ')
-    
-    if need_index == True:
-        indexed_chunk = []
+    if need_whitespace == True: # training data
+        chunks = [list(" " + text[i:i + chunk_size-1]) for i in range(0, len(text), chunk_size)]
         for chunk in chunks:
-            int_embedding = np.array([vocab_index.index_of(char) for char in chunk])
-            indexed_chunk.append(int_embedding)
-        return indexed_chunk
-    else:
-        return chunks
+            while len(chunk) < chunk_size:
+                chunk.append(' ')
+    else:# testing data
+        chunks = [list(text[i:i + chunk_size]) for i in range(0, len(text), chunk_size)]
+        for chunk in chunks:
+            while len(chunk) < chunk_size:
+                chunk.append(' ')
+    
+    indexed_chunk = []
+    for chunk in chunks:
+        int_embedding = np.array([vocab_index.index_of(char) for char in chunk])
+        indexed_chunk.append(int_embedding)
+    return indexed_chunk
+
 
 # 【不可以改参数，会import这个函数来测试的】
 def train_lm(args, train_text, dev_text, vocab_index):
@@ -178,7 +184,7 @@ def train_lm(args, train_text, dev_text, vocab_index):
     :param vocab_index: an Indexer of the character vocabulary (27 characters)
     :return: a NeuralLanguageModel instance trained on the given data
     """
-    chunk_size = 20
+    chunk_size = 32
     d_model = 100
     num_head = 4
     num_layers = 3
@@ -188,24 +194,27 @@ def train_lm(args, train_text, dev_text, vocab_index):
     model.train() # 继承的nn.Module,在训练模型时候，需要调.train()，让子模块全部转到训练状态
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
 
-    num_epoches = 5
+    num_epoches = 8
     for t in range(0, num_epoches):
+        print("current epoch is", t)
         # You can use batching if you'd like
         loss_function = nn.NLLLoss() # cross extropy for longtensor type
         count = 0
-        chunks_list = text_chunking_indexed(train_text, chunk_size, vocab_index)
-        chunk_idxs = [i for i in range(0, len(chunks_list))]
+        data_chunks = text_chunking_indexed(train_text, chunk_size, vocab_index, need_whitespace=True)
+        label_chunks = text_chunking_indexed(train_text, chunk_size, vocab_index, need_whitespace=False)
+
+        chunk_idxs = [i for i in range(0, len(data_chunks))]
         random.seed(t)
         random.shuffle(chunk_idxs) # 打乱坐标来训练
-        for ex_idx in chunk_idxs:
-            current_indexed_context = chunks_list[ex_idx]
 
+        for ex_idx in chunk_idxs:
+            data = data_chunks[ex_idx]
+            label = label_chunks[ex_idx]
             # current_indexed_context = [26  8 13  3 20 18 19 17  8  0 11 26 22 14 17 10  4 17 18 26]
-            log_probs = model(current_indexed_context) # 继承了nn.Module时，直接调用model(input)就可以直接得到模型输出！！！
+            log_probs = model(data) # 继承了nn.Module时，直接调用model(input)就可以直接得到模型输出！！！
             log_probs = torch.Tensor(log_probs).squeeze()
             
-            # BUG!!! log_probs全是0？？梯度根本没法更新！！
-            expect_tensor = torch.Tensor(current_indexed_context).long()
+            expect_tensor = torch.Tensor(label).long()
             
             loss = loss_function(log_probs, expect_tensor)
             loss_val = loss.detach().cpu().numpy()   
@@ -214,17 +223,31 @@ def train_lm(args, train_text, dev_text, vocab_index):
             loss.backward()
             optimizer.step()
 
-            count = count+1
+            count = count + 1
             if count % 200 == 0:
                 print(loss_val)
                 model.eval()
-                print_evaluation(dev_text, \
-                    NeuralLanguageModel(model, chunk_size, vocab_index), vocab_index, args.output_bundle_path)
+                #print_evaluation(dev_text, \
+                    #NeuralLanguageModel(model, chunk_size, vocab_index), vocab_index, args.output_bundle_path)
                 model.train()
+        model.eval()
+        print_evaluation(dev_text, \
+                    NeuralLanguageModel(model, chunk_size, vocab_index), vocab_index, args.output_bundle_path)
+        model.train()
                 
     model.eval()
     return NeuralLanguageModel(model, chunk_size, vocab_index)
 
-            
+"""
+{
+  "sane": true,
+  "normalizes": true,
+  "range": true,
+  "log_prob": -909.2762309238315,
+  "avg_log_prob": -1.818552461847663,
+  "perplexity": 6.162930912340994
+}
+Entire time of training and evaluating is  592.007673740387
+""" 
             
             

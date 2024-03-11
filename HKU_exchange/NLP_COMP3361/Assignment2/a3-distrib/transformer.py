@@ -206,6 +206,8 @@ def train_classifier(args, train, dev, num = 1):
             ex = train[index]
             model.zero_grad() # 清空梯度
             result, _ = model.forward(ex.input_tensor) # 前向计算结果 
+            #print("result",result)
+            #print("label", ex.output_tensor)
             loss = loss_function(result, ex.output_tensor) # 计算loss
             loss.backward() # 反向传播计算梯度 
             optimizer.step() # 依梯度来更新参数

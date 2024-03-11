@@ -40,8 +40,10 @@ def read_text(file):
 
 def run_sanity_check(lm, vocab_index):
     """
-    Runs two sanity checks: (1) The language model must return valid probabilities for a few contexts. This checks that
-    your model can take sequences of different lengths and contexts of different lengths without crashing.
+    Runs two sanity checks: 
+    (1) The language model must return valid probabilities for a few contexts. 
+    This checks that your model can take sequences of different lengths and 
+        contexts of different lengths without crashing.
     (2) Your reported next character distribution must agree with get_log_prob_sequence
     :param lm: the trained LM
     :return: True if the output is sane, false otherwise
@@ -51,9 +53,9 @@ def run_sanity_check(lm, vocab_index):
     sane = True
     for context in contexts:
         for next_seq in next_seqs:
-            print("next_seq=",next_seq,"context=",context)
             # BUG: 可能是因为sentence的预测时，把许多空格都给补上了，导致概率不一样
             log_prob = lm.get_log_prob_sequence(next_seq, context)
+            # 本应呈型 context + next_seq
             if log_prob > 0.0:
                 sane = False
                 print("ERROR: sanity checks failed, LM log probability %f is invalid" % (log_prob))
