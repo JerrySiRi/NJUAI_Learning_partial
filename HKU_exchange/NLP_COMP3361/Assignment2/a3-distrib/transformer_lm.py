@@ -53,7 +53,7 @@ class UniformLanguageModel(LanguageModel):
 
 # testing phase !!!
 class NeuralLanguageModel(LanguageModel):
-    def __init__(self, trained_Transformer, chunk_size, vocab_index):
+    def __init__(self, trained_Transformer, vocab_index, chunk_size):
         self.model = trained_Transformer # finish training in train_lm
         self.chunk_size = chunk_size
         self.vocab_index = vocab_index
@@ -194,7 +194,7 @@ def train_lm(args, train_text, dev_text, vocab_index):
     model.train() # 继承的nn.Module,在训练模型时候，需要调.train()，让子模块全部转到训练状态
     optimizer = optim.Adam(model.parameters(), lr=1e-4)
 
-    num_epoches = 8
+    num_epoches = 6
     for t in range(0, num_epoches):
         print("current epoch is", t)
         # You can use batching if you'd like
@@ -226,19 +226,17 @@ def train_lm(args, train_text, dev_text, vocab_index):
             count = count + 1
             if count % 200 == 0:
                 print(loss_val)
-                model.eval()
-                #print_evaluation(dev_text, \
-                    #NeuralLanguageModel(model, chunk_size, vocab_index), vocab_index, args.output_bundle_path)
-                model.train()
         model.eval()
+        print("Current spoch is ", t)
         print_evaluation(dev_text, \
-                    NeuralLanguageModel(model, chunk_size, vocab_index), vocab_index, args.output_bundle_path)
+                    NeuralLanguageModel(model, vocab_index, chunk_size), vocab_index, args.output_bundle_path)
         model.train()
                 
     model.eval()
-    return NeuralLanguageModel(model, chunk_size, vocab_index)
+    return NeuralLanguageModel(model, vocab_index, chunk_size)
 
-"""
+# final run before submission
+""" 
 {
   "sane": true,
   "normalizes": true,

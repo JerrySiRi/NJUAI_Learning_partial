@@ -97,8 +97,7 @@ if __name__ == '__main__':
         [LetterCountingExample(l, get_letter_count_output(l, count_only_previous), vocab_index) \
              for l in dev_exs]
       
-    num_layers = 2
-    model = train_classifier(args, train_bundles, dev_bundles, num_layers)
+    model = train_classifier(args, train_bundles, dev_bundles)
 
 
     # 【？】train model的时候，传入dev的信息干什么？

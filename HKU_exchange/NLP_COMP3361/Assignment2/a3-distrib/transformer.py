@@ -216,6 +216,40 @@ def train_classifier(args, train, dev, num = 1):
     return model
 
 
+# final run before submission
+"""
+['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ' ']
+10000 lines read in
+1000 lines read in
+current number of layers is  1
+INPUT 0: heir average albedo
+GOLD 0: array([0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 2, 1, 2, 0, 0, 2, 0, 0, 2])
+PRED 0: array([0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 2, 1, 2, 0, 0, 2, 0, 0, 2],
+      dtype=int64)
+INPUT 1: ed by rank and file
+GOLD 1: array([0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2, 1, 1, 1, 2, 0, 0, 0, 1, 2])
+PRED 1: array([0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 2, 1, 1, 1, 2, 0, 0, 0, 1, 2],
+      dtype=int64)
+INPUT 2: s can also extend in
+GOLD 2: array([0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 2, 0, 0, 0, 1, 1, 0, 2, 0, 2])
+PRED 2: array([0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 2, 0, 0, 0, 1, 1, 0, 2, 0, 2],
+      dtype=int64)
+INPUT 3: erages between nine
+GOLD 3: array([0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 2, 2, 0, 1, 1, 0, 2, 2, 2])
+PRED 3: array([0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 2, 2, 0, 1, 1, 0, 2, 2, 2],
+      dtype=int64)
+INPUT 4:  that civilization n
+GOLD 4: array([0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 2, 0, 1, 2, 2, 0, 0, 2, 1])
+PRED 4: array([0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 2, 0, 1, 2, 2, 0, 0, 2, 1],
+      dtype=int64)
+Accuracy: 100 / 100 = 1.000000
+Training accuracy (100 exs):
+Accuracy: 1999 / 2000 = 0.999500
+Dev accuracy (whole set):
+Decoding on a large number of examples (1000); not printing or plotting
+Accuracy: 19968 / 20000 = 0.998400
+Duration: 476.32361674308777s
+"""
 
 ####################################
 # DO NOT MODIFY IN YOUR SUBMISSION #
@@ -247,18 +281,6 @@ def decode(model: Transformer, dev_examples: List[LetterCountingExample], do_pri
             print("GOLD %i: %s" % (i, repr(ex.output.astype(dtype=int))))
             print("PRED %i: %s" % (i, repr(predictions)))
         if do_plot_attn:
-            """
-            for j in range(0, len(attn_maps)): # 使用batch时，每一个attn_maps的元素是一个batch的attention
-                attn_map = attn_maps[j]
-                fig, ax = plt.subplots()
-                # `imshow`函数是matplotlib库中用于绘制图像的函数
-                im = ax.imshow(attn_map.detach().numpy(), cmap='hot', interpolation='nearest')
-                ax.set_xticks(np.arange(len(ex.input)), labels=ex.input)
-                ax.set_yticks(np.arange(len(ex.input)), labels=ex.input)
-                ax.xaxis.tick_top()
-                # plt.show()
-                plt.savefig("plots/%i_attns%i.png" % (i, j))
-            """
             attn_map = attn_maps # 没有采用batch的方案
             fig, ax = plt.subplots()
             # `imshow`函数是matplotlib库中用于绘制图像的函数
