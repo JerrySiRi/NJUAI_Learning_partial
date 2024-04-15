@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <!-- 加到页面中，且不向观众展示的页面内容，都以这个元素为容器。 -->
+    <!-- CSS内容加入 -->
+    <link href="styles/style.css" rel="stylesheet" />
+    <link
+  href="https://fonts.googleapis.com/css?family=Open+Sans"
+  rel="stylesheet" />
+
+    <meta charset="utf-8">
+    <title>My test page</title>
+  </head>
+
+  <body>
+    <h1>Mozilla is cool</h1>
+    <!-- 一级主标题 -->
+    <img src="images/firefox-icon.png" alt="The Firefox logo: a flaming fox surrounding the Earth.">
+    <p>At Mozilla, we’re a global community of</p>
+    <!-- <p>是段落的opening tag -->
+
+    <ul> <!-- changed to list in the tutorial -->
+      <li>technologists</li>
+      <li>thinkers</li>
+      <li>builders</li>
+    </ul>
+<!-- 无序列表用<ul>包围，有序列表用<ol>包围 -->
+<!-- 列表中每个项目用列表项目元素<li>包围 -->
+    <p>working together to keep the Internet alive and accessible, so people worldwide can be informed contributors and creators of the Web. 
+      We believe this act of human collaboration across an open platform is essential to individual growth and our collective future.</p>
+
+    <p>Read the <a href="https://www.mozilla.org/en-US/about/manifesto/">Mozilla Manifesto</a> 
+      to learn even more about the values and principles that guide the pursuit of our mission.</p>
+
+      <!-- <a>:a 是 "anchor" （锚）的缩写，
+包含文本内容（呈现在本网页），href是对应的网址 -->
+<!-- 此时不可以省略协议https://或http:// -->
+
+    <!-- JS内容加入 -->
+    <script src="scripts/main.js" defer></script> 
+  </body>
+</html>

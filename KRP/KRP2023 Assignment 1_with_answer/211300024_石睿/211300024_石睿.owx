@@ -1,0 +1,539 @@
+<?xml version="1.0"?>
+<Ontology xmlns="http://www.w3.org/2002/07/owl#"
+     xml:base="http://www.semanticweb.org/15210723175/ontologies/2023/2/beijing-2022"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     ontologyIRI="http://www.semanticweb.org/15210723175/ontologies/2023/2/beijing-2022">
+    <Prefix name="owl" IRI="http://www.w3.org/2002/07/owl#"/>
+    <Prefix name="rdf" IRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+    <Prefix name="xml" IRI="http://www.w3.org/XML/1998/namespace"/>
+    <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
+    <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
+    <Declaration>
+        <Class IRI="#Alpine_Skiing"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Biathlon"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Biathlon_item"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Bobsleigh"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Bobsleigh_item"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Captial_Gymnasium"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Cross-Country_Skiing"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Curing_item"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Curling"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Dongji"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Figure_Skating"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Freestyle_Skiing"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Gaoshan"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Ice_Hockey"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Ice_Hockey_item"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Luge"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Luge_item"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#National_Aquatics_Center"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#National_Speed_Skating_Oval"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#National_stadium"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Nordic_Combined"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Short_Track_Speed_Skating"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Shougang_Ski_Jumping_Center"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Skating"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Skeleton"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Ski_Jumping"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Skiing"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Snowboard"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Speed_Skating"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Sport"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Stadium"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Tiaotai"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Wukesong_Sports_Center"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Xueche"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Yueye"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Yunding"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Zhangjiakou"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#downtown,Beijing"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#outskirts,Yanqing"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#IsTakenPlaceAt"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#hold"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#begin_time"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#end_time"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#02.07.man"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#02.08.femal"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#02.12.man"/>
+    </Declaration>
+    <Declaration>
+        <NamedIndividual IRI="#02.13.femal"/>
+    </Declaration>
+    <SubClassOf>
+        <Class IRI="#Alpine_Skiing"/>
+        <Class IRI="#Skiing"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Alpine_Skiing"/>
+        <ObjectAllValuesFrom>
+            <ObjectProperty IRI="#IsTakenPlaceAt"/>
+            <Class IRI="#Gaoshan"/>
+        </ObjectAllValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Biathlon"/>
+        <Class IRI="#Sport"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Biathlon_item"/>
+        <Class IRI="#Biathlon"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Biathlon_item"/>
+        <ObjectAllValuesFrom>
+            <ObjectProperty IRI="#IsTakenPlaceAt"/>
+            <Class IRI="#Dongji"/>
+        </ObjectAllValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Bobsleigh"/>
+        <Class IRI="#Sport"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Bobsleigh_item"/>
+        <Class IRI="#Bobsleigh"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Bobsleigh_item"/>
+        <ObjectAllValuesFrom>
+            <ObjectProperty IRI="#IsTakenPlaceAt"/>
+            <Class IRI="#Xueche"/>
+        </ObjectAllValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Captial_Gymnasium"/>
+        <Class IRI="#downtown,Beijing"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Cross-Country_Skiing"/>
+        <Class IRI="#Skiing"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Cross-Country_Skiing"/>
+        <ObjectAllValuesFrom>
+            <ObjectProperty IRI="#IsTakenPlaceAt"/>
+            <Class IRI="#Yueye"/>
+        </ObjectAllValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Curing_item"/>
+        <Class IRI="#Curling"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Curing_item"/>
+        <ObjectAllValuesFrom>
+            <ObjectProperty IRI="#IsTakenPlaceAt"/>
+            <Class IRI="#National_Aquatics_Center"/>
+        </ObjectAllValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Curling"/>
+        <Class IRI="#Sport"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Dongji"/>
+        <Class IRI="#Zhangjiakou"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Figure_Skating"/>
+        <Class IRI="#Skating"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Figure_Skating"/>
+        <ObjectAllValuesFrom>
+            <ObjectProperty IRI="#IsTakenPlaceAt"/>
+            <Class IRI="#Captial_Gymnasium"/>
+        </ObjectAllValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Freestyle_Skiing"/>
+        <Class IRI="#Skiing"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Freestyle_Skiing"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#IsTakenPlaceAt"/>
+            <Class IRI="#Shougang_Ski_Jumping_Center"/>
+        </ObjectSomeValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Freestyle_Skiing"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#IsTakenPlaceAt"/>
+            <Class IRI="#Yunding"/>
+        </ObjectSomeValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Gaoshan"/>
+        <Class IRI="#outskirts,Yanqing"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Ice_Hockey"/>
+        <Class IRI="#Sport"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Ice_Hockey_item"/>
+        <Class IRI="#Ice_Hockey"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Ice_Hockey_item"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#IsTakenPlaceAt"/>
+            <Class IRI="#National_stadium"/>
+        </ObjectSomeValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Ice_Hockey_item"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#IsTakenPlaceAt"/>
+            <Class IRI="#Wukesong_Sports_Center"/>
+        </ObjectSomeValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Luge"/>
+        <Class IRI="#Sport"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Luge_item"/>
+        <Class IRI="#Luge"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Luge_item"/>
+        <ObjectAllValuesFrom>
+            <ObjectProperty IRI="#IsTakenPlaceAt"/>
+            <Class IRI="#Xueche"/>
+        </ObjectAllValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#National_Aquatics_Center"/>
+        <Class IRI="#downtown,Beijing"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#National_Speed_Skating_Oval"/>
+        <Class IRI="#downtown,Beijing"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#National_stadium"/>
+        <Class IRI="#downtown,Beijing"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Nordic_Combined"/>
+        <Class IRI="#Skiing"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Nordic_Combined"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#IsTakenPlaceAt"/>
+            <Class IRI="#Tiaotai"/>
+        </ObjectSomeValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Nordic_Combined"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#IsTakenPlaceAt"/>
+            <Class IRI="#Yueye"/>
+        </ObjectSomeValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Short_Track_Speed_Skating"/>
+        <Class IRI="#Skating"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Short_Track_Speed_Skating"/>
+        <ObjectAllValuesFrom>
+            <ObjectProperty IRI="#IsTakenPlaceAt"/>
+            <Class IRI="#Captial_Gymnasium"/>
+        </ObjectAllValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Shougang_Ski_Jumping_Center"/>
+        <Class IRI="#downtown,Beijing"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Skating"/>
+        <Class IRI="#Sport"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Skeleton"/>
+        <Class IRI="#Bobsleigh"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Skeleton"/>
+        <ObjectAllValuesFrom>
+            <ObjectProperty IRI="#IsTakenPlaceAt"/>
+            <Class IRI="#Xueche"/>
+        </ObjectAllValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Ski_Jumping"/>
+        <Class IRI="#Skiing"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Ski_Jumping"/>
+        <ObjectAllValuesFrom>
+            <ObjectProperty IRI="#IsTakenPlaceAt"/>
+            <Class IRI="#Tiaotai"/>
+        </ObjectAllValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Skiing"/>
+        <Class IRI="#Sport"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Snowboard"/>
+        <Class IRI="#Skiing"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Snowboard"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#IsTakenPlaceAt"/>
+            <Class IRI="#Shougang_Ski_Jumping_Center"/>
+        </ObjectSomeValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Snowboard"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#IsTakenPlaceAt"/>
+            <Class IRI="#Yunding"/>
+        </ObjectSomeValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Speed_Skating"/>
+        <Class IRI="#Skating"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Speed_Skating"/>
+        <ObjectAllValuesFrom>
+            <ObjectProperty IRI="#IsTakenPlaceAt"/>
+            <Class IRI="#National_Speed_Skating_Oval"/>
+        </ObjectAllValuesFrom>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Tiaotai"/>
+        <Class IRI="#Zhangjiakou"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Wukesong_Sports_Center"/>
+        <Class IRI="#downtown,Beijing"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Xueche"/>
+        <Class IRI="#outskirts,Yanqing"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Yueye"/>
+        <Class IRI="#Zhangjiakou"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Yunding"/>
+        <Class IRI="#Zhangjiakou"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#Zhangjiakou"/>
+        <Class IRI="#Stadium"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#downtown,Beijing"/>
+        <Class IRI="#Stadium"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#outskirts,Yanqing"/>
+        <Class IRI="#Stadium"/>
+    </SubClassOf>
+    <ClassAssertion>
+        <Class IRI="#Freestyle_Skiing"/>
+        <NamedIndividual IRI="#02.07.man"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Freestyle_Skiing"/>
+        <NamedIndividual IRI="#02.08.femal"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Speed_Skating"/>
+        <NamedIndividual IRI="#02.12.man"/>
+    </ClassAssertion>
+    <ClassAssertion>
+        <Class IRI="#Speed_Skating"/>
+        <NamedIndividual IRI="#02.13.femal"/>
+    </ClassAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#begin_time"/>
+        <NamedIndividual IRI="#02.07.man"/>
+        <Literal>9:00</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#end_time"/>
+        <NamedIndividual IRI="#02.07.man"/>
+        <Literal>12:55</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#begin_time"/>
+        <NamedIndividual IRI="#02.08.femal"/>
+        <Literal>12:55</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#begin_time"/>
+        <NamedIndividual IRI="#02.08.femal"/>
+        <Literal>9:00</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#begin_time"/>
+        <NamedIndividual IRI="#02.12.man"/>
+        <Literal>14:00</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#end_time"/>
+        <NamedIndividual IRI="#02.12.man"/>
+        <Literal>16:30</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#begin_time"/>
+        <NamedIndividual IRI="#02.13.femal"/>
+        <Literal>14:00</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#end_time"/>
+        <NamedIndividual IRI="#02.13.femal"/>
+        <Literal>16:30</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#begin_time"/>
+        <AnonymousIndividual nodeID="_:genid2147483671"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#decimal">123</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#begin_time"/>
+        <AnonymousIndividual nodeID="_:genid2147483672"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#decimal">2022.02.07</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#begin_time"/>
+        <AnonymousIndividual nodeID="_:genid2147483673"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#decimal">2022.02.07</Literal>
+    </DataPropertyAssertion>
+    <DataPropertyAssertion>
+        <DataProperty IRI="#begin_time"/>
+        <AnonymousIndividual nodeID="_:genid2147483674"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#decimal"></Literal>
+    </DataPropertyAssertion>
+    <NegativeDataPropertyAssertion>
+        <DataProperty IRI="#begin_time"/>
+        <AnonymousIndividual nodeID="_:genid2147483671"/>
+        <Literal datatypeIRI="http://www.w3.org/2001/XMLSchema#decimal">2022</Literal>
+    </NegativeDataPropertyAssertion>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="#IsTakenPlaceAt"/>
+        <ObjectProperty IRI="#hold"/>
+    </InverseObjectProperties>
+    <TransitiveObjectProperty>
+        <ObjectProperty IRI="#IsTakenPlaceAt"/>
+    </TransitiveObjectProperty>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:label"/>
+        <IRI>#Freestyle_Skiing</IRI>
+        <AnonymousIndividual nodeID="_:genid2147483671"/>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#Shougang_Ski_Jumping_Center</IRI>
+        <Literal>Freestyle Skiing</Literal>
+    </AnnotationAssertion>
+</Ontology>
+
+
+
+<!-- Generated by the OWL API (version 4.5.25.2023-02-15T19:15:49Z) https://github.com/owlcs/owlapi -->
+

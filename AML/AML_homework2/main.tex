@@ -1,0 +1,179 @@
+% 请确保文件编码为utf-8，使用XeLaTex进行编译，或者通过overleaf进行编译
+
+\documentclass[answers]{exam}  % 使用此行带有作答模块
+% \documentclass{exam} % 使用此行只显示题目
+
+\usepackage{xeCJK}
+\usepackage{zhnumber}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{enumerate}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[dvipsnames]{xcolor}  % 更全的色系
+\usepackage{listings}
+\lstset{
+    language = Python,
+    backgroundcolor = \color{blue!5},    % 背景色
+    basicstyle = \small\ttfamily,           % 基本样式 + 小号字体
+    rulesepcolor= \color{gray},             % 代码块边框颜色
+    breaklines = true,                  % 代码过长则换行
+    numbers = left,                     % 行号在左侧显示
+    numberstyle = \small,               % 行号字体
+    keywordstyle = \color{orange},            % 关键字颜色
+    commentstyle =\color{green!100},        % 注释颜色
+    stringstyle = \color{red!100},          % 字符串颜色
+    frame = shadowbox,                  % 用（带影子效果）方框框住代码块
+    showspaces = false,                 % 不显示空格
+    columns = fixed,                    % 字间距固定
+    %escapeinside={<@}{@>}              % 特殊自定分隔符：<@可以自己加颜色@>
+    morekeywords = {as},                % 自加新的关键字（必须前后都是空格）
+    deletendkeywords = {compile}        % 删除内定关键字；删除错误标记的关键字用deletekeywords删！
+}
+
+\title{2023秋季高级机器学习 \\ 习题二}
+\date{2023.11.03}
+\pagestyle{headandfoot}
+\firstpageheadrule
+\firstpageheader{南京大学}{2023秋季高级机器学习}{习题二}
+\runningheader{南京大学}
+{2023秋季高级机器学习}
+{习题二}
+\runningheadrule
+\firstpagefooter{}{第\thepage\ 页（共\numpages 页）}{}
+\runningfooter{}{第\thepage\ 页（共\numpages 页）}{}
+
+% no box for solutions
+% \unframedsolutions
+
+\setlength\linefillheight{.5in}
+
+% \renewcommand{\solutiontitle}{\noindent\textbf{答：}}
+\renewcommand{\solutiontitle}{\noindent\textbf{解：}\par\noindent}
+
+\renewcommand{\thequestion}{\zhnum{question}}
+\renewcommand{\questionlabel}{\thequestion .}
+\renewcommand{\thepartno}{\arabic{partno}}
+\renewcommand{\partlabel}{\thepartno .}
+
+\def\dist{{\mathrm{dist}}}
+\def\x{{\boldsymbol{x}}}
+\def\w{{\boldsymbol{w}}}
+
+
+\begin{document}
+% \normalsize
+\maketitle
+
+\begin{questions}
+
+\question [30] \textbf{稀疏学习}
+
+上一次习题中涉及到了PCA的矩阵低秩近似角度理解。
+Robust PCA在此基础上增加了一个变量和正则项：
+\begin{align}
+    \min_{X^{\prime},E} \quad & \operatorname{rank}(X^{\prime})+\lambda\|E\|_0 \\
+    s.t.\quad & X = X^\prime + E \nonumber
+\end{align}
+其中$\|\cdot\|_0$为零范数。$\lambda$为正则化参数。
+为了解该优化问题，我们考虑它的凸松弛（Convex Relaxation）：
+\begin{align}
+    \min_{X^{\prime},E} \quad & \|X^\prime\|_*+\lambda\|E\|_1 \\
+    s.t.\quad & X = X^\prime + E \nonumber
+\end{align}
+其中$\|\cdot\|_*$为核范数（Nuclear Norm）。
+使用增广拉格朗日方法（Augmented Lagrangian Method）处理约束条件，可以得到：
+\begin{align}
+    \min_{X^{\prime},E} \quad & \|X^\prime\|_*+\lambda\|E\|_1 + \langle Y, X - X' - E\rangle + \frac{\mu}{2}\|X-X^\prime-E\|^2_F
+\end{align}
+其中$Y$为拉格朗日乘子。此处省略后续的推导过程和收敛性分析，求解该优化问题的交替求解算法中的python代码片段如下：
+\begin{lstlisting}
+...
+Xk = np.zeros(self.X.shape)
+Ek = np.zeros(self.X.shape)
+Yk = np.zeros(self.X.shape)
+while (err > _tol) and iter_ < max_iter:
+    Xk = self.nuclear_prox(self.X - Ek + self.mu_inv * Yk, self.mu_inv)
+    Ek = self.L1_prox(self.X - Xk + self.mu_inv * Yk, self.mu_inv * self.lmbda)
+    Yk = Yk + self.mu * (self.X - Xk - Ek)
+    err = self.frobenius_norm(self.X - Xk - Ek)
+    iter_ += 1
+    if (iter_ % iter_print) == 0 or iter_ == 1 or iter_ > max_iter or err <= _tol:
+        print('iteration: {0}, error: {1}'.format(iter_, err))
+...
+\end{lstlisting}
+
+\begin{parts}
+    \part [4] Robust PCA增加的变量$E$和正则项对模型有什么作用？
+    \part [14] 代码片段中第6行和第7行调用的方法实现了什么优化方法解了哪两个优化问题？（写出优化方法并分别写出优化问题）
+    \part [12] 你认为Robust PCA具有哪些实际应用场景？在这些应用场景中有什么优势？（举出三个具体例子，并简要说明在这些场景中的优势，多于三个批改时以前三个为准）
+\end{parts}
+
+
+
+\begin{solution}
+	\begin{parts}
+		\part 
+		\part 
+		\part 
+	\end{parts}
+\end{solution}
+
+\question[30] \textbf{图半监督学习}
+
+多标记图半监督学习算法的正则化框架如下(另见西瓜书p303)。
+
+\begin{equation}
+\mathcal{Q}(F)=\frac{1}{2}\left(\sum_{i, j=1}^{n} W_{i j}\left\Vert\frac{1}{\sqrt{d_{i}}} F_{i}-\frac{1}{\sqrt{d_{j}}} F_{j}\right\Vert^{2}\right)+\mu \sum_{i=1}^{n}\left\|F_{i}-Y_{i}\right\|^{2}
+\end{equation}
+\begin{parts}
+	\part  [15] 求正则化框架的最优解$F^*$。
+	\part  [15] 试说明该正则化框架与书中p303页多分类标记传播算法之间的关系。
+\end{parts}
+
+\begin{solution}
+\begin{parts}
+	\part
+	\part
+\end{parts}
+\end{solution}
+
+\question [40] \textbf{半监督SVM实践}
+
+参照教材中图13.4所示的TSVM算法，在所提供的半监督数据集上进行训练，报告模型在未标记数据集以及测试集上的性能。
+
+本次实验的数据集为一个二分类的数据集，已提前划分为训练数据和测试数据，其中训练数据划分为有标记数据和无标记数据。数据的特征维度为30，每一维均为数值类型。数据文件的具体描述如下:
+\begin{itemize}
+    \item \texttt{label\_X.csv,label\_y.csv}分别是有标记数据的特征及其标签。
+    \item \texttt{unlabel\_X.csv,unlabel\_y.csv}分别是无标记数据的特征及其标签。
+    \item \texttt{test\_X.csv,test\_y.csv}分别是测试数据的特征及其标签。
+\end{itemize}
+
+注意，训练阶段只可以使用\texttt{label\_X.csv,label\_y.csv,unlabel\_X.csv}中的数据，其他的数据只可以在测试阶段使用。
+\begin{parts}
+    \part  本次实验要求使用Python3.8以上编写，代码统一集中在\texttt{tsvm\_main.py}中，通过运行该文件就可以完成训练和测试，并输出测试结果。（提交一个额外的python文件）
+    \part 本次实验需要完成以下功能:
+    \begin{parts}
+        \part [15] 参照教材中图13.4，使用代码实现TSVM算法。要求:
+        \begin{enumerate}[1.]
+            \item 不允许直接调用相关软件包中的半监督学习方法。
+            \item 可以直接调用相关软件包的SVM算法。
+            \item 可以使用诸如\texttt{cvxpy}等软件包求解QP问题。
+        \end{enumerate}
+        \part [10] 使用训练好的模型在无标记数据和测试数据上进行预测，报告模型在这两批数据上的准确率和ROC曲线以及AUC值。
+        \part [15] 尝试使用各种方法提升模型在测试集上的性能，例如数据预处理，超参数调节等。报告你所采取的措施，以及其所带来的提升。
+    \end{parts}
+\end{parts}
+
+\begin{solution}
+
+\end{solution}
+
+
+\end{questions}
+
+\end{document}

@@ -1,0 +1,218 @@
+\documentclass[a4paper,UTF8]{article}
+\usepackage{ctex}
+\usepackage[margin=1.25in]{geometry}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+% \setcounter{section}{-1}
+\numberwithin{equation}{section}
+\usepackage[ruled,vlined,lined,boxed,linesnumbered]{algorithm2e}
+\usepackage{soul, color, xcolor}
+\usepackage{bm}
+\usepackage{tcolorbox}
+\usepackage{hyperref}
+\numberwithin{equation}{section}
+%\usepackage[thmmarks, amsmath, thref]{ntheorem}
+\theoremstyle{definition}
+\newtheorem*{solution}{Solution}
+\newtheorem*{prove}{Proof}
+\usepackage{multirow}
+\usepackage{diagbox}
+\usepackage{float}
+\usepackage{subfigure}
+\usepackage{cleveref}
+
+\definecolor{mydarkblue}{rgb}{0,0.082,0.7}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=mydarkblue,
+    filecolor=mydarkblue,      
+    urlcolor=mydarkblue,
+    citecolor=mydarkblue,
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.5em}
+\newcommand{\bds}{\boldsymbol}
+\def \X {\mathbf{X}}
+\def \A {\mathbf{A}}
+\def \w {\mathbf{w}}
+\def \y {\mathbf{y}}
+\def \x {\mathbf{x}}
+\def \z {\mathbf{z}}
+\def \hy {\widehat{y}}
+\def \by {\Bar{y}}
+\def \H {\mathbf{H}}
+\def \I {\mathbf{I}}
+\newcommand\given[1][]{\:#1\vert\:}
+\def \Ent {\text{Ent}}
+
+\begin{document}
+\title{机器学习导论\ 习题六}
+\author{学号, 姓名, 邮箱}
+\maketitle
+\section*{作业提交注意事项}
+\begin{tcolorbox}
+	\begin{enumerate}
+		\item[1.] 请在LaTeX模板中第一页填写个人的学号、姓名、邮箱;
+		\item[2.] 本次作业需提交作答且运行后的~.ipynb 文件与相应的~.pdf 文件; {\color{red}\textbf{请打包为~.zip 文件上传}}. 注意命名规则, 文件均命名为 “$\text{学号}\_\text{姓名}$”+“.后缀” (例如 $\text{211300001}\_\text{张三}$” + “.ipynb”、“.zip”);
+		\item[3.] 若多次提交作业, 则在命名~.zip 文件时加上版本号, 例如 “$\text{211300001}\_\text{张三}$ $\_\text{v1.zip}$” (批改时以版本号最高的文件为准);
+		\item[4.] 本次作业提交截止时间为 {\color{red}\textbf{ 6 月 25 日 23:59:59}}. 未按照要求提交作业, 提交作业格式不正确, {\color{red}\textbf{作业命名不规范}}, 将会被扣除部分作业分数; 除特殊原因 (如因病缓交, 需出示医院假条) 逾期未交作业, 本次作业记 0 分; {\color{red}\textbf{如发现抄袭, 抄袭和被抄袭双方成绩全部取消}};
+		\item[5.] 本次作业提交地址为 \href{https://box.nju.edu.cn/u/d/c03d48964e324ba28f6a/}{here}, 请大家预留时间提前上交, 以防在临近截止日期时, 因网络等原因无法按时提交作业.
+	\end{enumerate}
+\end{tcolorbox}
+\newpage
+
+
+\section*{Overview: Final Homework}
+
+本次作业将从一个医疗数据集 \href{https://archive.ics.uci.edu/ml/datasets/PPG-DaLiA}{PPG-DaLiA} 入手, 对本门课程进行系统性地回顾与考察.
+
+首先对 PPG-DaLiA 数据集进行介绍. 该数据集的构建目的为心率估计, 包含 15 个佩戴生理和运动传感器的受试者在进行各类活动时的监测数据.
+数据集已预先进行了处理与划分, 其中训练集包含 466,160 个样本, 测试集包含 51,796 个样本. 每个样本有 19 个特征:
+\begin{itemize}
+    \item chest\_*, wrist\_* 以及 rpeaks 这 11 个特征为传感器实时数据, 具体含义可见\href{https://archive.ics.uci.edu/ml/machine-learning-databases/00495/readme.pdf}{数据集说明文档}, 此处不再赘述;
+    \item gender, age, height, weight, skin, sport 这 6 个特征为受试者的个人信息, 依次为性别、年龄、身高、体重、肤色类别以及锻炼频率, 其中 sport 越大代表运动越频繁;
+    \item activity 为受试者当前的活动类型, 分为 9 个类别, 可作为分类任务的标签. 具体地, 该特征从 0 至 9 依次为不同活动间的切换、站立、上下楼梯、桌上足球、骑自行车、开车、午休、走路以及工作;
+    \item heart\_rate 为受试者当前心率, 可作为回归任务的预测目标.
+\end{itemize} 
+
+由特征语义可知, PPG-DaLiA 数据集既可构建分类任务, 也可构建回归任务.
+因此本次作业将分为两大部分, 其中前四题将通过分类任务, 完成对数据集的熟悉以及对课程知识的回顾; 第五题则通过回归任务, 完成对所学知识的实践.
+
+本次作业具体组织如下:
+\begin{itemize}
+    \item 第一题 [10pts]: 对数据集进行分析, 并做相应处理;
+    \item 第二题 [15pts]: 以逻辑回归为例, 在不同的性能度量下 (Accuracy 与 AUC), 通过 K 折交叉验证选取线性模型的超参数;
+    \item 第三题 [15pts]: 实现其它课程中学过的算法, 包括决策树、多层感知机、支持向量机、朴素贝叶斯、随机森林 (Bagging 集成算法) 以及 LightGBM (Boosting 集成算法);
+    \item 第四题 [15pts]: 对训练得到的各类学习器进行结合, 分别实现 Voting (投票法) 与 Stacking (学习法) 两种结合策略;
+    \item 第五题 [45pts]: 基于前四题内容, 构建模型完成回归任务 (不限制方式, 自由发挥), 并对实现过程进行说明. 模型评估将通过 Kaggle 平台完成.
+\end{itemize}
+
+本次作业需提交的文件:
+\begin{itemize}
+    \item hw6.ipynb: 包含五道题相应的代码与运行记录;
+    \item hw6.pdf: 在本文档的基础上, 包含对第四题与第五题相应内容的说明.
+\end{itemize}
+
+
+\newpage
+
+\section{[10pts] Dataset Analysis and Preprocessing}
+
+当面对一个陌生的机器学习任务时, 首先需要做的是对数据集进行分析, 包括数据集大小、数据分布、特征类型以及缺失情况等. 分析结束后, 再针对具体情况对数据集进行相应处理.
+
+\begin{enumerate}
+    \item[(1)] \textbf{[2pts]} 输出训练集和测试集每一维特征的名称与类型, 并找出测试集缺失的一维特征, 完成 hw6.ipynb 中 1.1 内容. 
+    \item[(2)] \textbf{[2pts]} 对每一维特征进行分析并完成 hw6.ipynb 中 1.2 内容:
+    \begin{itemize}
+        \item 数值型特征 (float, int) 统计最小/大值、均值、标准差、去重后的元素个数;
+        \item 类别型特征 (object) 统计去重后的元素个数, 并输出不同取值对应的样本数;
+        \item 每一维特征统计缺失数量.
+    \end{itemize}
+    \item[(3)] \textbf{[2pts]} 对于 object 型特征, 通常需要对其进行编码, 将其转为数值型特征, 便于后续模型训练. 常用的编码方式有两种: 定义映射函数进行转换与独热编码 (One-Hot).
+    此处我们以第一种为例, 将所有 object 型特征从 0 开始编码, 例如某个特征有三个取值, 则映射为 0, 1, 2. 需保持训练/测试集映射函数一致, 并完成 hw6.ipynb 中 1.3 内容.
+    \item[(4)] \textbf{[2pts]} 在训练集上, 分析任务标签的数据分布, 并完成 hw6.ipynb 中 1.4 内容:
+    \begin{itemize}
+        \item 画出 activity 特征 (分类任务标签) 的数据分布柱状图, 其中横坐标为特征取值, 纵坐标为该取值对应的样本数;
+        \item 画出 heart\_rate 特征 (回归任务标签) 的数据分布直方图, 即先将取值范围均匀划分为 30 个等宽区间, 再统计各区间内样本数.
+    \end{itemize}
+    \item[(5)] \textbf{[2pts]} 为了对数据集各特征之间的关系有进一步的认识, 通常会采用一些统计量来度量特征两两之间的相关性.
+    此处以 Pearson 相关系数为例, 要求计算出特征两两之间的相关系数, 并通过热力图进行展示. 具体内容见 hw6.ipynb 中 1.5 部分.
+\end{enumerate}
+
+
+\newpage
+
+\section{[15pts] K-Fold Cross Validation}\label{sec2}
+交叉验证法是机器学习中常用的模型评估方法. 请仔细阅读学习课本第二章 2.2.2 节, 并在本题中使用 K 折交叉验证来为带有正则项的对数几率回归选取合适的超参数, 本题中涉及的超参数为正则化系数, 其定义及意义参见课本第六章 6.4 节.
+
+\begin{enumerate}
+    \item[(1)] \textbf{[6pts]} 使用精度作为性能度量, 通过 K 折交叉验证法来为对数几率回归选择合适的超参数,  完成并运行 hw6.ipynb 中 2.1 内容. 
+    \item[(2)] \textbf{[2pts]} 正确运行 hw6.ipynb 中 2.2 代码块, 绘制出结果, 并根据结果选择一个合适的超参数, 将其填写在 2.2 代码块的下方.
+    \item[(3)] \textbf{[5pts]} 使用 AUC 作为性能度量 (ovr), 通过 K 折交叉验证法来为对数几率回归选择合适的超参数,  完成并运行 hw6.ipynb 中 2.3 内容. 
+    \item[(4)] \textbf{[2pts]} 正确运行 hw6.ipynb 中 2.4 代码块, 绘制出结果, 并根据结果选择一个合适的超参数, 将其填写在 2.4 代码块的下方. 
+\end{enumerate}
+
+\newpage
+
+\section{[15pts] Various Classification Models}\label{sec3}
+分类问题是机器学习中常见的一类问题, 本题中将带大家实现课程上涉及到的分类模型. 请阅读学习课本上的对应章节, 并严格按照要求在 hw6.ipynb 的代码块中完成相应任务.
+
+\begin{enumerate}
+    \item[(1)] \textbf{[2pts]} 调用 sklearn 库实现决策树模型, 完成并运行 hw6.ipynb 中 3.1 内容. 
+    \item[(2)] \textbf{[2pts]} 调用 torch 库实现多层前馈神经网络模型, 完成并运行 hw6.ipynb 中 3.2 内容. 
+    \item[(3)] \textbf{[2pts]} 调用 sklearn 库实现支持向量机模型, 完成并运行 hw6.ipynb 中 3.3 内容.
+    \item[(4)] \textbf{[2pts]} 调用 sklearn 库实现朴素贝叶斯模型, 完成并运行 hw6.ipynb 中 3.4 内容.
+    \item[(5)] \textbf{[2pts]} 调用 sklearn 库实现随机森林模型, 完成并运行 hw6.ipynb 中 3.5 内容.
+    \item[(6)] \textbf{[2pts]} 调用 sklearn 库实现 LightGBM 模型, 完成并运行 hw6.ipynb 中 3.6 内容.
+    \item[(7)] \textbf{[3pts]} 完成并运行 hw6.ipynb 中 3.7 内容, 将上述模型使用 ovr 的 ROC 曲线绘制在同一张图内. 根据结果分析在该问题上哪些模型效果较好, 哪些模型效果较差, 将其填写在 3.7 代码块下方. 
+\end{enumerate}
+
+在第三次与第四次作业中, 已实现过其中的一些模型, 代码可以直接使用. 需要参考的库有:
+
+\begin{itemize}
+    \item Scikit-learn: \href{https://scikit-learn.org/stable/index.html}{https://scikit-learn.org/stable/index.html};
+    \item PyTorch: \href{https://pytorch.org/docs/stable/index.html}{https://pytorch.org/docs/stable/index.html}.
+\end{itemize}
+
+\newpage
+
+\section{[15pts] Model Combination Strategies}
+
+为在给定的学习任务上取得更好的性能, 一种常见的方式是将多个模型进行结合, 使结合后的模型比单个模型表现地更好. 
+模型结合策略有很多, 例如平均法、投票法以及学习法.
+在实践中通常尝试多种结合策略, 以期取得更好的效果.
+更多内容可见课本第八章 8.4 节.
+
+\begin{enumerate}
+    \item[(1)] \textbf{[5pts]} 投票法是分类任务上最为常见的结合策略. 此处要求对先前得到的七个不同模型, 采用相对多数投票法的策略进行结合, 完成并运行 hw6.ipynb 中 4.1 内容.
+    \item[(2)] \textbf{[5pts]} 当训练数据很多时, 通常可以采用学习法对模型进行结合. Stacking 是学习法的典型代表 (详细内容见课本第八章 8.4.3 节), 此处要求采用 5 折交叉验证的方式实现该种结合策略. 具体地, 初级学习算法采用多层感知机、支持向量机与 LightGBM 三种, 次级学习算法采用逻辑回归. 完成并运行 hw6.ipynb 中 4.2 内容.
+    \item[(3)] \textbf{[5pts]} 简述上述两种结合策略的实现过程, 并对两种策略的运行结果进行简要分析. 
+\end{enumerate}
+
+\begin{solution}
+	此处用于填写第三小问的回答 (中英文均可)
+\end{solution}
+
+\newpage
+
+\section{[45pts] Regression Task in Practice}
+回归问题是机器学习中的一类重要问题. 本题需要基于前四题内容, 构建模型完成对数据集中 heart\_rate  进行预测的回归任务. Kaggle 平台(\href{https://www.kaggle.com}{https://www.kaggle.com})是一个常用的机器学习竞赛平台, 本题涉及到的数据、评分等将统一在该平台上实现.
+
+请在 Kaggle 平台完成注册, 并点击\href{https://www.kaggle.com/t/3292cd87cf7f4ec8af0889617d410af8}{该链接}进入比赛界面. 请注意:
+
+\begin{itemize}
+    \item \textbf{带标记的训练数据集与不带标记的测试数据集均在比赛中的 Data 栏目下载, 与作业 zip 包中自带的数据集一致.}
+    \item \textbf{点击比赛右上角 Submit Predictions 进行预测结果上传, }{\color{red} \textbf{每天最多上传3次.}}
+    \item \textbf{上传的预测结果为带表头的双列csv文件; }
+    
+    {\color{red} \textbf{其中第一列表头为 id, 每行的值为 0, 1, $\cdots$; 0 对应于测试数据中第 1 行样本, 以此类推. 第二列表头为 expected, 每行的值为对测试数据中对应行样本的预测.} } \textbf{提交文件的格式示例请参考 data 文件夹下的 submission\_eg.csv 文件.}
+    \item \textbf{请将队名更改为 “学号” 后再上传预测结果, 例如 “211300001”, }{\color{red} \textbf{否则不计分.}} 
+    \item \textbf{可以在比赛中的 LeaderBoard 栏目查看自己最新的提交与得分.}
+\end{itemize}
+
+
+
+
+
+
+
+具体的给分细则如下所示:
+\begin{itemize}
+    \item \textbf{[5pts]} 将实现代码填入 hw6.ipynb 的相应位置并运行.
+    \item \textbf{[5pts]} 模型在测试集上预测结果的 RMSE 小于 baseline 1 (23.1).
+    \item \textbf{[15pts]} 在 hw6.pdf 中给出具体实现过程的分析与说明, 涉及模型的实现方法、过程中遇到的难点以及相应的解决措施等.
+    \item \textbf{[20pts]} 在预测结果的 RMSE 小于 baseline 2 (20.7) 的前提下, 进行如下评分:
+    \[\text{score} = 12  + 8\times \left(1-\frac{\text{你的排名}-1}{\text{达到 baseline 的总人数}}\right)\]
+\end{itemize}
+
+\begin{solution}
+	此处用于填写具体实现过程的分析与说明 (中英文均可)
+\end{solution}
+
+
+\end{document}
