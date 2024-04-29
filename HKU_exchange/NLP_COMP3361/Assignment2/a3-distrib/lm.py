@@ -112,7 +112,7 @@ def print_evaluation(text, lm, vocab_index, output_bundle_path):
     """
     
     sane = run_sanity_check(lm, vocab_index)
-    log_prob = lm.get_log_prob_sequence(text, " ")
+    log_prob = lm.get_log_prob_sequence(text, "")
     avg_log_prob = log_prob/len(text)
     perplexity = np.exp(-log_prob / len(text))
     normalizes = normalization_test(lm, vocab_index)

@@ -63,6 +63,8 @@ class NeuralLanguageModel(LanguageModel):
         # assume input context is preprocessed into length below chunk_size
         # TODO: 依据已有的context估计下一个char的log pro
         #print("===char===")
+        #print(type(context))
+            
         if type(context) == str:
             context = [self.vocab_index.index_of(char) for char in context]
         chunk_context = context[-self.chunk_size+1: ]
@@ -78,6 +80,8 @@ class NeuralLanguageModel(LanguageModel):
         # next_chars是在已经有的序列上，下一个token(从next_chars这个sequence中拿)是他。来算它的概率
         log_sum = 0
         cur_context = initial_context
+        if len(initial_context) == 0:
+            initial_context += ' '
         if type(initial_context) == str:
             cur_context = [self.vocab_index.index_of(char) for char in initial_context]
         if type(next_chars) == str:
