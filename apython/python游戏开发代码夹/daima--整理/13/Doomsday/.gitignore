@@ -1,0 +1,6 @@
+# Compiled Python Files
+*.py[cod]
+
+# PyDev Project Files
+.project
+.pydevproject

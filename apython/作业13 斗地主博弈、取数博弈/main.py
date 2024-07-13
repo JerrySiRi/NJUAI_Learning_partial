@@ -1,0 +1,1 @@
+print(list(range(4, 1, -1)))

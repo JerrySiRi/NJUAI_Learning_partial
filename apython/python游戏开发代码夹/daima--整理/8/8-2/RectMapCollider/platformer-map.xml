@@ -1,0 +1,994 @@
+<resource><requires file="platformer-tiles.xml" />
+<rectmap id="walls" origin="0,0,1" tile_size="128x128"><column><cell tile="bl" />
+<cell tile="l1" />
+<cell tile="l2" />
+<cell tile="l2" />
+<cell tile="l2" />
+<cell tile="l1" />
+<cell tile="l2" />
+<cell tile="l1" />
+<cell tile="l1" />
+<cell tile="l2" />
+<cell tile="l2" />
+<cell tile="l1" />
+<cell tile="l2" />
+<cell tile="tr" />
+</column>
+<column><cell tile="b1" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b2" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b2" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b1" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b1" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b2" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b2" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b1" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b1" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="br" />
+<cell tile="tl" />
+<cell />
+<cell />
+<cell />
+<cell tile="black" />
+<cell tile="r1" />
+<cell tile="tl" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell tile="b2" />
+<cell />
+<cell />
+<cell />
+<cell tile="black" />
+<cell tile="l2" />
+<cell tile="tr" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell tile="b1" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell tile="br" />
+<cell tile="tl" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell tile="bl" />
+<cell tile="tr" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="bl" />
+<cell tile="tr" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b1" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b1" />
+<cell />
+<cell />
+<cell />
+<cell tile="black" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b1" />
+<cell />
+<cell />
+<cell />
+<cell tile="black" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b1" />
+<cell />
+<cell />
+<cell />
+<cell tile="black" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b1" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="br" />
+<cell tile="r1" />
+<cell tile="r2" />
+<cell tile="tl" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="bl" />
+<cell tile="l2" />
+<cell tile="l1" />
+<cell tile="tr" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b2" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b1" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b2" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b1" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b1" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b1" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b1" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b1" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="b1" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell tile="br" />
+<cell tile="r2" />
+<cell tile="r2" />
+<cell tile="r1" />
+<cell tile="r2" />
+<cell tile="r1" />
+<cell tile="r2" />
+<cell tile="r1" />
+<cell tile="r1" />
+<cell tile="r1" />
+<cell tile="r2" />
+<cell tile="r2" />
+<cell tile="r1" />
+<cell tile="tl" />
+</column>
+</rectmap>
+<rectmap id="decoration" origin="0,0,0" tile_size="128x128"><column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell tile="tree"><property name="player_start" type="bool" value="True" /></cell>
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell tile="treefruit" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell tile="treefruit" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell tile="treefruit" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell tile="treefruit" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell tile="treefruit" />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell tile="cauldron"><property name="player-end" type="bool" value="True" /></cell>
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+<column><cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+<cell />
+</column>
+</rectmap>
+</resource>

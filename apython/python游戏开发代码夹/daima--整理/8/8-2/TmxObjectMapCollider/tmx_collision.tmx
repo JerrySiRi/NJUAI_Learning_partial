@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="14" height="12" tilewidth="128" tileheight="128" nextobjectid="12">
+ <layer name="Capa de Patrones 1" width="14" height="12">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup name="walls">
+  <object id="1" x="121.212" y="1298.76" width="1587.39" height="131"/>
+  <object id="2" x="92" y="72.7273" width="73.3333" height="1283.27"/>
+  <object id="3" x="91.3333" y="50.6667" width="1642" height="53.3333"/>
+  <object id="5" x="1706.67" y="49.3333" width="64" height="1328.67"/>
+  <object id="6" x="436.364" y="1233.33" width="206.061" height="81.8182"/>
+  <object id="8" x="769.697" y="1169.7" width="169.697" height="184.848"/>
+  <object id="9" x="842.424" y="662.121" width="169.697" height="184.848"/>
+  <object id="11" x="254.545" y="912.121" width="92" height="274">
+   <properties>
+    <property name="player_start" type="bool" value="true"/>
+   </properties>
+   <ellipse/>
+  </object>
+ </objectgroup>
+</map>

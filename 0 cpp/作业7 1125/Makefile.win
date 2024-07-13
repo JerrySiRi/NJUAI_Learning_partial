@@ -1,0 +1,31 @@
+# Project: 停车系统
+# Makefile created by Dev-C++ 5.11
+
+CPP      = g++.exe -D__DEBUG__
+CC       = gcc.exe -D__DEBUG__
+WINDRES  = windres.exe
+OBJ      = parking.o define.o
+LINKOBJ  = parking.o define.o
+LIBS     = -L"D:/新建文件夹/Dev-Cpp/MinGW64/lib" -L"D:/新建文件夹/Dev-Cpp/MinGW64/x86_64-w64-mingw32/lib" -static-libgcc -g3
+INCS     = -I"D:/新建文件夹/Dev-Cpp/MinGW64/include" -I"D:/新建文件夹/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"D:/新建文件夹/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include"
+CXXINCS  = -I"D:/新建文件夹/Dev-Cpp/MinGW64/include" -I"D:/新建文件夹/Dev-Cpp/MinGW64/x86_64-w64-mingw32/include" -I"D:/新建文件夹/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include" -I"D:/新建文件夹/Dev-Cpp/MinGW64/lib/gcc/x86_64-w64-mingw32/4.9.2/include/c++"
+BIN      = 停车系统.exe
+CXXFLAGS = $(CXXINCS) -g3
+CFLAGS   = $(INCS) -g3
+RM       = rm.exe -f
+
+.PHONY: all all-before all-after clean clean-custom
+
+all: all-before $(BIN) all-after
+
+clean: clean-custom
+	${RM} $(OBJ) $(BIN)
+
+$(BIN): $(OBJ)
+	$(CPP) $(LINKOBJ) -o $(BIN) $(LIBS)
+
+parking.o: parking.cpp
+	$(CPP) -c parking.cpp -o parking.o $(CXXFLAGS)
+
+define.o: define.cpp
+	$(CPP) -c define.cpp -o define.o $(CXXFLAGS)
