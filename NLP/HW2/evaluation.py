@@ -26,10 +26,13 @@ def get_edits(src_text: str, tgt_text: str) -> List[Tuple]:
     Returns:
         List of edit operations, each operation is a tuple (operation_type, start_pos, end_pos, [replacement_text])
     """
+    
     # Use Levenshtein library to calculate edit operations
     edits = Levenshtein.opcodes(src_text, tgt_text)
+    # 返回的是一个「最短编辑路径的操作序列」（也叫“edit script”），用来将 src_text 转换成 tgt_text。
 
     # Generate standardized edit sequence
+    # 这两个string相互转换需要进行什么操作 ~ 
     result = []
     for edit in edits:
         if edit[0] == 'equal':

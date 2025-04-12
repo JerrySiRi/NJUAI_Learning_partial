@@ -41,8 +41,8 @@ def main():
     Main function to run the Chinese text correction pipeline.
     """
     parser = argparse.ArgumentParser(description='Chinese Text Correction')
-    parser.add_argument('--train_file', type=str, default='data/law_train.jsonl', help='Path to training data')
-    parser.add_argument('--test_file', type=str, default='data/law_test.jsonl', help='Path to test data')
+    parser.add_argument('--train_file', type=str, default='data/train.jsonl', help='Path to training data')
+    parser.add_argument('--test_file', type=str, default='data/test.jsonl', help='Path to test data')
     parser.add_argument(
         '--method',
         type=str,
@@ -50,8 +50,12 @@ def main():
         default='statistical',
         help='Correction method to use',
     )
+    # 巧！根据是否出现决定真假，而不用显示赋予他们True or False！
+    # 这里--analyze，如果出现了那么就会被赋值为True！
     parser.add_argument('--analyze', action='store_true', help='Perform data analysis')
     parser.add_argument('--statistical_method', type=str, default='ml', help='Statistical method to use')
+    parser.add_argument('--evaluate', action='store_true', help='To choose whether we need evaluation')
+    
     args = parser.parse_args()
 
     # Load data
@@ -59,13 +63,14 @@ def main():
     train_data = load_data(args.train_file)
     test_data = load_data(args.test_file)
 
-    # Data analysis
+    # TODO 1: Data analysis
     if args.analyze:
         print("\nPerforming data analysis...")
         analysis_results = analyze_data(train_data)
         visualize_error_distribution(analysis_results)
 
-    # Initialize corrector based on method
+    # TODO 2: Initialize corrector based on method
+    # 基于规则的
     if args.method == 'rule':
         print("\nInitializing rule-based corrector...")
         corrector = RuleBasedCorrector()
@@ -89,19 +94,25 @@ def main():
         # Or you could use different methods for different types of errors
         # TODO end
 
-    # Evaluate on test data
-    print("\nEvaluating on test data...")
-    predictions = []
-    for sample in tqdm(test_data, ncols=100):
-        source = sample['source']
-        corrected = corrector.correct(source)
-        predictions.append(
-            {'source': source, 'prediction': corrected, 'target': sample['target'], 'label': sample['label']}
-        )
+    # TODO 3: Evaluate on test data
+    if args.evaluate:
+        print("\nEvaluating on test data...")
+        predictions = []
+        for sample in tqdm(test_data, ncols=100):
+            source = sample['source']
+            corrected = corrector.correct(source)
+            """
+            print("==原来的句子:", source,"\n")
+            print("==更改过后的句子:", corrected,"\n")
+            print("------------------")
+            """
+            predictions.append(
+                {'source': source, 'prediction': corrected, 'target': sample['target'], 'label': sample['label']}
+            )
 
-    # Calculate evaluation metrics
-    metrics = evaluate_performance(predictions)
-    print_detailed_metrics(metrics)
+        # Calculate evaluation metrics
+        metrics = evaluate_performance(predictions)
+        print_detailed_metrics(metrics)
 
 
 if __name__ == "__main__":
