@@ -8,7 +8,6 @@ This module implements statistical methods for correcting errors in Chinese text
 
 import re
 import json
-import copy
 import numpy as np
 from typing import Dict, List, Tuple, Any
 from collections import Counter, defaultdict
@@ -49,10 +48,9 @@ except ImportError:
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
-from transformers import BertTokenizer, BertModel, AdamW, get_linear_schedule_with_warmup
+from transformers import BertTokenizer, BertModel
 from typing import List, Dict
 import Levenshtein
-from torchcrf import CRF
 
 
 """
@@ -73,7 +71,7 @@ from torchcrf import CRF
 
 3. 不能只用linear层是独立的了，detector和corrector共享bert的输出
 
--- 训练任务修改 --  
+-- 训练任务修改 -- 
 
 1. detection：只做二分类 - 正确 & 错误【减少四选一 & 类别不平衡
    correction：决定具体是哪种操作以及相应的纠正内容。
@@ -84,182 +82,144 @@ from torchcrf import CRF
 
 
 # 准备数据格式：detection + correction
-class SeqOpDataset(Dataset):
-    """
-    Dataset for joint 4-way sequence labeling + character generation.
-    Labels:
-      op_labels: 0=KEEP,1=REPLACE,2=DELETE,3=INSERT
-      corr_labels: token_id for REPLACE/INSERT, -100 otherwise
-    """
-    def __init__(self, data: List[Dict[str,str]], tokenizer, max_len=128):
+class DetCorrDataset(Dataset):
+    def __init__(self, data: List[Dict[str, str]], tokenizer: BertTokenizer, max_len=128):
         self.data = data
-        self.tk   = tokenizer
+        self.tokenizer = tokenizer
         self.max_len = max_len
 
-    def __len__(self): return len(self.data)
+    def __len__(self):
+        return len(self.data)
 
-    def __getitem__(self, i):
-        src = self.data[i]['source']
-        tgt = self.data[i]['target']
-        enc = self.tk(src, padding='max_length', truncation=True,
-                      max_length=self.max_len, return_tensors='pt',
-                      add_special_tokens=True)
-        ids = enc.input_ids.squeeze(0)
-        mask= enc.attention_mask.squeeze(0)
-        L   = ids.size(0)
-        pad = self.tk.pad_token_id
+    def __getitem__(self, idx):
+        src = self.data[idx]['source']
+        tgt = self.data[idx]['target']
+        # --- 1) encode src and tgt to ids --- #
+        enc_src = self.tokenizer(src,
+                                 padding='max_length',
+                                 truncation=True,
+                                 max_length=self.max_len,
+                                 return_tensors='pt')
+        enc_tgt = self.tokenizer(tgt,
+                                 padding='max_length',
+                                 truncation=True,
+                                 max_length=self.max_len,
+                                 return_tensors='pt')
+        src_ids = enc_src.input_ids.squeeze(0)       # (L,)
+        tgt_ids = enc_tgt.input_ids.squeeze(0)       # (L,)
 
-        # 初始化 op_labels 和 corr_labels
-        op_labels   = torch.zeros(L, dtype=torch.long)
-        op_labels[ids==pad] = -100
+        L = src_ids.size(0)
+        pad_id = self.tokenizer.pad_token_id
+
+        # --- 2) 初始化 labels --- #
+        # 【det: 0=keep, 1=replace, 2=delete, 3=insert】
+        det_labels = torch.zeros(L, dtype=torch.long)
+        det_labels[src_ids == pad_id] = -100         # pad 忽略
+
+        # corr: 正确的 token_id，只有 replace/insert 时才有意义
         corr_labels = torch.full((L,), -100, dtype=torch.long)
 
-        # Levenshtein 对齐
+        # --- 3) 用 Levenshtein 对齐，生成操作 --- #
+        # opcodes: List of (tag, i1,i2,j1,j2)
         ops = Levenshtein.opcodes(src, tgt)
-        for tag,i1,i2,j1,j2 in ops:
-            for si,tj in zip(range(i1,i2), range(j1,j2)):
-                tok_idx = si+1  # 跳过 [CLS]
-                if tok_idx>=L-1: break
-                if tag=='replace':
-                    op_labels[tok_idx]=1
-                    corr_labels[tok_idx] = self.tk.convert_tokens_to_ids(tgt[tj])
-                elif tag=='delete':
-                    op_labels[tok_idx]=2
-                elif tag=='insert':
-                    op_labels[tok_idx]=3
-                    corr_labels[tok_idx] = self.tk.convert_tokens_to_ids(tgt[j1])
-                # equal -> keep (0)
+        # 我们只对 src 长度内的位置打标，insert 会标在 i1 位置
+        for tag, i1, i2, j1, j2 in ops:
+            if tag == 'equal':
+                continue
+            elif tag == 'replace':
+                # 每个被替换的 src[i] -> tgt[j]
+                for si, tj in zip(range(i1, i2), range(j1, j2)):
+                    if si < L:
+                        det_labels[si] = 1
+                        corr_labels[si] = self.tokenizer.convert_tokens_to_ids(tgt[tj])
+            elif tag == 'delete':
+                # 删除 src[i1:i2]
+                for si in range(i1, i2):
+                    if si < L:
+                        det_labels[si] = 2
+                        # corr_labels已经初始化了，继续保持 -100
+            elif tag == 'insert':
+                # 在 src[i1] 之前插入 tgt[j1:j2]，我们简化
+                # 只保留第一个要插入的字符
+                if i1 < L:
+                    det_labels[i1] = 3
+                    corr_labels[i1] = self.tokenizer.convert_tokens_to_ids(tgt[j1])
+                # 若想插入多个字符，可扩展成列表，这里先做简化
 
         return {
-            'input_ids': ids,
-            'attention_mask': mask,
-            'op_labels': op_labels,
-            'corr_labels': corr_labels
+            'input_ids':      src_ids,
+            'attention_mask': enc_src.attention_mask.squeeze(0),
+            'det_labels':     det_labels,
+            'corr_labels':    corr_labels
         }
 
-class CharCorrectionHead(nn.Module):
-    """
-    字符纠正头：MLP → BiLSTM → Linear(vocab)
-    输入 (B, L, H)，输出 (B, L, V)
-    """
-    def __init__(self, hidden_size: int, vocab_size: int,
-                 dropout: float = 0.1, lstm_layers: int = 1):
+# Model: frozen BERT + BiLSTM + 两个头 -- detector & corrector
+class BertBiLSTMDetCorr(nn.Module):
+    def __init__(self, bert_model_name='bert-base-chinese', hidden_size=768, lstm_layers=1):
         super().__init__()
         
-        # 1) 两层 MLP
-        self.mlp = nn.Sequential(
-            nn.Linear(hidden_size, hidden_size),
+        self.bert = BertModel.from_pretrained(bert_model_name)
+        
+        # 【不冻结了！！！】
+        # for p in self.bert.parameters():
+        #     p.requires_grad = False
+            
+        self.bilstm = nn.LSTM(
+            input_size=hidden_size, 
+            hidden_size=hidden_size,
+            num_layers=lstm_layers, 
+            bidirectional=True, 
+            batch_first=True
+        )
+        
+        # ------ detector ------- #
+        # 判断是不是错误的，output layer大小是2
+        # self.det_fc = nn.Linear(hidden_size*2, 2)
+        # 做四分类任务：正确的，替换，删除，插入
+        self.det_fc = nn.Sequential(
+            nn.Linear(hidden_size*2, hidden_size),
             nn.LayerNorm(hidden_size),
             nn.GELU(),
-            nn.Dropout(dropout),
-
+            nn.Dropout(0.1),
             nn.Linear(hidden_size, hidden_size),
             nn.GELU(),
-            nn.Dropout(dropout),
-        )
-        # 2) BiLSTM
-        self.bilstm = nn.LSTM(
-            input_size=hidden_size,
-            hidden_size=hidden_size // 2,
-            num_layers=lstm_layers,
-            batch_first=True,
-            bidirectional=True,
-            dropout=dropout if lstm_layers > 1 else 0.0
+            nn.Dropout(0.1),
+            nn.Linear(hidden_size, 4)
         )
         
-        # 3) 最终投到 vocab_size
-        self.out = nn.Linear(hidden_size, vocab_size)
         
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Args:
-          x: (B, L, H)
-        Returns:
-          (B, L, V)
-        """
-        x = self.mlp(x)              # (B, L, H)
-        x, _ = self.bilstm(x)        # (B, L, H)
-        return self.out(x)           # (B, L, V)
-        
-
-class BertCRFCorrector(nn.Module):
-    def __init__(self,
-                 model_name: str = 'bert-base-chinese',
-                 hidden: int = 768,
-                 dropout: float = 0.1,
-                 lstm_layers: int = 1):
-        
-        super().__init__()
-        # 1) BERT 编码器
-        self.bert = BertModel.from_pretrained(model_name)
-        self.drop = nn.Dropout(dropout)
-
-        # 2) 4-way 操作 CRF
-        self.op_fc  = nn.Linear(hidden, 4)
-        self.op_crf = CRF(num_tags=4, batch_first=True)
-
-        # 3) 字符预测头
-        # 3) 字符纠正分支 —— 全部放到 self.char_fc
-        self.char_fc = CharCorrectionHead(
-            hidden_size=hidden,
-            vocab_size=self.bert.config.vocab_size,
-            dropout=dropout,
-            lstm_layers=lstm_layers
+        # ------ corrector ------ # 
+        # 纠正错误，必须要输出一个vocab_size的大小
+        # 问题比较难，最后要映射到vocab_size的输出呢，估计需要更大的层级？
+        self.corr_fc = nn.Sequential(
+            nn.Linear(hidden_size*2, hidden_size),
+            nn.LayerNorm(hidden_size),
+            nn.GELU(),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_size, hidden_size*2),
+            nn.GELU(),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_size*2, self.bert.config.vocab_size)
         )
+        # 根据Bert的embedding先初始化一下
+        # self.corr_fc[-1].weight = self.bert.embeddings.word_embeddings.weight
         
-        # nn.Linear(hidden, self.bert.config.vocab_size)
+        # weight tying: 输出层权重 = BERT 的输入嵌入权重
+        # self.corr_fc[-1].weight = self.bert.embeddings.word_embeddings.weight
 
-    def forward(self,
-                ids: torch.LongTensor,
-                mask: torch.LongTensor,
-                op_labels: torch.LongTensor = None,
-                corr_labels: torch.LongTensor = None):
-        """
-        Args:
-          ids         (B, L)   BERT 输入 id
-          mask        (B, L)   attention_mask （0/1 LongTensor）
-          op_labels   (B, L)   0=KEEP,1=REPLACE,2=DELETE,3=INSERT, -100=ignore
-          corr_labels (B, L)   纠正字符 id（只有 replace/insert 有效），-100=ignore
 
-        Returns:
-          loss_op    – None or scalar 操作 CRF 的负对数似然
-          loss_char  – None or scalar 字符预测的交叉熵
-          op_logits  – (B, L, 4) CRF 前的原始得分
-          char_logits– (B, L, V) 字符预测 logits
-        """
+    def forward(self, input_ids, attention_mask):
+        # with torch.no_grad():
+        enc = self.bert(input_ids=input_ids, attention_mask=attention_mask)
+        states = enc.last_hidden_state
+        lstm_out, _ = self.bilstm(states)
         
-        # --- 1) BERT 编码 ---
-        bert_out = self.bert(input_ids=ids, attention_mask=mask)
-        seq_out  = bert_out.last_hidden_state   # (B, L, H)
-        seq_out  = self.drop(seq_out)
+        # 两个head单独接受LSTM的输出哦
+        lstm_out, _ = self.bilstm(states)  # (B, L, 2H)
+        det_logits  = self.det_fc(lstm_out)   # (B, L, 2)
+        corr_logits = self.corr_fc(lstm_out)  # (B, L, V)
+        return det_logits, corr_logits, lstm_out
 
-        # 强制把 mask 转成 BoolTensor
-        bool_mask = mask.bool()                 # (B, L)
-
-        # --- 2) 操作 CRF 前向 ---
-        op_logits = self.op_fc(seq_out)         # (B, L, 4)
-        loss_op = None
-        if op_labels is not None:
-            # 复制并修正越界标签
-            tags = op_labels.clone()
-            tags[tags < 0]  = 0
-            tags[tags >= 4] = 0
-            
-            # 计算 CRF log-likelihood 并取负
-            ll = self.op_crf(op_logits, tags, mask=bool_mask)
-            loss_op = -ll.mean()
-
-        # --- 3) 字符预测头 & 损失 ---
-        char_logits = self.char_fc(seq_out)     # (B, L, V)
-        loss_char = None
-        if corr_labels is not None:
-            B, L, V = char_logits.size()
-            flat_logits = char_logits.view(-1, V)    # (B*L, V)
-            flat_labels = corr_labels.view(-1)       # (B*L,)
-            ce = nn.CrossEntropyLoss(ignore_index=-100)
-            loss_char = ce(flat_logits, flat_labels)
-
-        return loss_op, loss_char, op_logits, char_logits
 
 
 class StatisticalCorrector:
@@ -394,9 +354,9 @@ class StatisticalCorrector:
             )
 
     
-    def _train_ml_model(self, model: BertCRFCorrector, \
+    def _train_ml_model(self, model: BertBiLSTMDetCorr, \
                         train_data: List[Dict[str, str]], \
-                        epochs=8, batch_size=8, max_len=128, lr=2e-5) -> None:
+                        epochs=10, batch_size=16, max_len=128, lr=2e-5) -> None:
         
         self.max_length = max_len
         """
@@ -416,94 +376,150 @@ class StatisticalCorrector:
         # 可以使用数据增强或者预训练的词向量来提高模型的准确性
         
         from tqdm.auto import tqdm
-        from torch.utils.data import DataLoader, WeightedRandomSampler
         
-        tk     = BertTokenizer.from_pretrained('bert-base-chinese')
-
-        # 1) 划分 train/val
-        train_d, val_d = train_test_split(train_data, test_size=0.1, random_state=42)
-
-        # 2) 统计每个句子中错误操作的数量，作为采样权重
-        sample_weights = []
-        for sample in train_d:
-            src, tgt = sample['source'], sample['target']
-            ops = Levenshtein.opcodes(src, tgt)
-            # errs = replace + delete + insert 次数
-            errs = sum(1 for tag, *_ in ops if tag != 'equal')
-            sample_weights.append(errs + 1)  # errs=0 的句子也保留权重 1
-
-        sampler = WeightedRandomSampler(
-            weights=sample_weights,
-            num_samples=len(sample_weights),
-            replacement=True
+        train_split, val_split = train_test_split(
+            train_data, test_size=0.05, random_state=42
         )
-
-        # Dataset & DataLoader
-        train_ds = SeqOpDataset(train_d, tk, max_len)
-        val_ds   = SeqOpDataset(val_d,   tk, max_len)
-
-        train_loader = DataLoader(
-            train_ds,
-            batch_size=batch_size,
-            sampler=sampler,   # 用 sampler 代替 shuffle
-            drop_last=False,
-            pin_memory=True,
-            num_workers=2
+        
+        tokenizer = BertTokenizer.from_pretrained('bert-base-chinese')
+        train_dataset = DetCorrDataset(train_split, tokenizer, max_len)
+        val_dataset   = DetCorrDataset(val_split,   tokenizer, max_len)
+        train_loader  = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        val_loader    = DataLoader(val_dataset,   batch_size=batch_size, shuffle=False)
+        
+        """
+        optimizer = torch.optim.Adam(
+            filter(lambda p: p.requires_grad, model.parameters()), lr=lr
         )
-        val_loader   = DataLoader(val_ds, batch_size=batch_size, shuffle=False)
+        """
+        
+        bert_params, decoder_params = [], []
+        for name, p in model.named_parameters():
+            if 'bert' in name:
+                bert_params.append(p)
+            else:
+                decoder_params.append(p)
+        optimizer = torch.optim.Adam([
+            {'params': bert_params,     'lr': 2e-5},   # BERT 用小 lr
+            {'params': decoder_params,  'lr': 1e-3},   # decoder (BiLSTM) 用大 lr
+        ])
 
-        # 其他和以前相同：优化器、scheduler
-        optimizer = AdamW(model.parameters(), lr=lr, weight_decay=0.01)
-        total_steps = epochs * len(train_loader)
-        scheduler = get_linear_schedule_with_warmup(
-            optimizer,
-            num_warmup_steps=int(0.1 * total_steps),
-            num_training_steps=total_steps
-        )
+        
+        """
+        # 【类别不平衡 - label = 0（正确的）过多】
+        from collections import Counter
+        counts = Counter()
+        for batch in train_loader:
+            labs = batch['det_labels'].view(-1).cpu().tolist()
+            counts.update([l for l in labs if l >= 0])  # 忽略 -100
+        print("Unbalanced data", counts)     
+        """
+        
+        # ------ Unbalanced data Counter({0: 101392, 1: 696, 2: 261, 3: 183}) ------ #
+        
+        all_labels = torch.cat([b['det_labels'].view(-1) for b in train_loader])
+        all_labels = all_labels[all_labels >= 0]
+        N = float(len(all_labels))
+        weights = []
+        for cls in range(4):
+            cnt = int((all_labels == cls).sum().item())
+            # 避免除零
+            weights.append(N/cnt if cnt>0 else 0.0)
+        weight_tensor = torch.tensor(weights, device=self.device)
+        
+        det_criterion = nn.CrossEntropyLoss(weight=weight_tensor, ignore_index=-100)
+        corr_criterion = nn.CrossEntropyLoss(ignore_index=-100)
+        
 
-        model.to(self.device)
-        for ep in range(epochs):
-            model.train()
-            tot_op = tot_ch = 0.0
-            for batch in tqdm(train_loader, desc=f"Train Epoch {ep+1}/{epochs}"):
+        model.to(self.device) 
+        model.train()
+        for epoch in range(epochs):
+            # —— 训练阶段 —— #
+            loop = tqdm(train_loader, desc=f"Train Epoch {epoch+1}/{epochs}")
+            total_det_loss = total_corr_loss = 0.0
+            for batch in loop:
+                input_ids     = batch['input_ids'].to(self.device)
+                attention_mask= batch['attention_mask'].to(self.device)
+                det_labels    = batch['det_labels'].to(self.device)
+                corr_labels   = batch['corr_labels'].to(self.device)
+
+                det_logits, corr_logits, _ = model(input_ids, attention_mask)
                 
-                # 所有的数据都移到 device
-                for k,v in batch.items():
-                    batch[k] = v.to(self.device)
-                optimizer.zero_grad()
-                loss_op, loss_char, op_logits, char_logits = model(
-                    batch['input_ids'],
-                    batch['attention_mask'],
-                    batch['op_labels'],
-                    batch['corr_labels']
+                # BUG：改成 4分类任务，下面都得改啦
+                # 原 det_logits 的 shape 是 (B, L, 4)
+                B, L, num_det_classes = det_logits.size()  # num_det_classes 应当是 4
+
+                # 训练损失时，把它 flatten 成 (B*L, 4)
+                det_loss = det_criterion(
+                    det_logits.view(-1, num_det_classes),  # (B*L, 4)
+                    det_labels.view(-1)                    # (B*L,)
                 )
-                
-                
-                loss = loss_op + 1.5*loss_char
+
+                # corr_logits 依然是 (B, L, V)
+                V = corr_logits.size(-1)
+                corr_loss = corr_criterion(
+                    corr_logits.view(-1, V),              # (B*L, V)
+                    corr_labels.view(-1)                  # (B*L,)
+                )
+
+                loss = det_loss + corr_loss
+
+                optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
-                scheduler.step()
-                tot_op += loss_op.item()
-                tot_ch += loss_char.item()
-                # print("\n Loss Operation", tot_op)
-                # print("\n Loss Character", tot_ch)
-            print(f"Ep{ep+1} ▶ op_loss={tot_op/len(train_loader):.4f}  char_loss={tot_ch/len(train_loader):.4f}")
 
-            # 验证
+                total_det_loss  += det_loss.item()
+                total_corr_loss += corr_loss.item()
+                loop.set_postfix({
+                    'd_l': total_det_loss/(loop.n+1),
+                    'c_l': total_corr_loss/(loop.n+1),
+                    't_l': (total_det_loss + total_corr_loss)/(loop.n+1)
+                })
+
+            avg_train_det  = total_det_loss  / len(train_loader)
+            avg_train_corr = total_corr_loss / len(train_loader)
+
+            # -- 验证阶段 -- #
             model.eval()
-            vop = vch = 0.0
+            val_det_loss = val_corr_loss = 0.0
             with torch.no_grad():
                 for batch in val_loader:
-                    for k,v in batch.items():
-                        batch[k] = v.to(self.device)
-                    loss_op, *_ = model(
-                        batch['input_ids'],
-                        batch['attention_mask'],
-                        batch['op_labels'],
-                        batch['corr_labels']
+                    input_ids      = batch['input_ids'].to(self.device)
+                    attention_mask = batch['attention_mask'].to(self.device)
+                    det_labels     = batch['det_labels'].to(self.device)
+                    corr_labels    = batch['corr_labels'].to(self.device)
+
+                    det_logits, corr_logits, _ = model(input_ids, attention_mask)
+                
+                    # BUG：改成 4分类任务，下面都得改啦
+                    # 原 det_logits 的 shape 是 (B, L, 4)
+                    B, L, num_det_classes = det_logits.size()  # num_det_classes 应当是 4
+
+                    # 训练损失时，把它 flatten 成 (B*L, 4)
+                    det_loss = det_criterion(
+                        det_logits.view(-1, num_det_classes),  # (B*L, 4)
+                        det_labels.view(-1)                    # (B*L,)
                     )
-                    vop += loss_op.item()
-            print(f" Val ▶ op_loss={vop/len(val_loader):.4f}")
+
+                    # corr_logits 依然是 (B, L, V)
+                    V = corr_logits.size(-1)
+                    corr_loss = corr_criterion(
+                        corr_logits.view(-1, V),              # (B*L, V)
+                        corr_labels.view(-1)                  # (B*L,)
+                    )
+
+                    val_det_loss  += det_loss.item()
+                    val_corr_loss += corr_loss.item()
+
+            avg_val_det  = val_det_loss  / len(val_loader)
+            avg_val_corr = val_corr_loss / len(val_loader)
+            model.train()
+
+            print(
+                f"Epoch {epoch+1} >>>>>>>>>>> "
+                f"Train Loss(det, corr): {avg_train_det:.4f}, {avg_train_corr:.4f} | "
+                f"Val Loss(det, corr): {avg_val_det:.4f}, {avg_val_corr:.4f}"
+            )
         
 
     def correct(self, text: str) -> str:
@@ -636,7 +652,7 @@ class StatisticalCorrector:
         return ''.join(corrected_text)
 
 
-    def _correct_with_ml(self, model: BertCRFCorrector, text: str, max_len=128) -> str:
+    def _correct_with_ml(self, model: BertBiLSTMDetCorr, text: str, max_len=128) -> str:
         """
         Correct text using machine learning model.
 
@@ -658,55 +674,69 @@ class StatisticalCorrector:
         # 其他位置（标点、英文、数字、空格）均跳过。
         # 这样就不会再把逗号，、句号。等都替换成“的”了
         
-        tokenizer = BertTokenizer.from_pretrained('bert-base-chinese')
-        enc = tokenizer(text,
-                        return_tensors='pt',
-                        max_length=max_len,
-                        truncation=True,
-                        padding='max_length',
-                        add_special_tokens=True)
-        ids  = enc.input_ids.to(self.device)
-        mask = enc.attention_mask.to(self.device)
+        tok = BertTokenizer.from_pretrained('bert-base-chinese')
+        enc = tok(text,
+                return_tensors='pt',
+                max_length=max_len,
+                truncation=True,
+                padding='max_length',
+                add_special_tokens=True)
+        input_ids = enc.input_ids.to(self.device)
+        attn_mask = enc.attention_mask.to(self.device)
 
-        model.to(self.device).eval()
         with torch.no_grad():
-            loss_op, loss_ch, op_logits, char_logits = model(ids, mask)
+            det_logits, corr_logits, lstm_out = model(input_ids, attn_mask)
+        # 把 pad 位置 (mask==0) 的 logits 设为一个很小的值
+        mask = attn_mask.unsqueeze(-1).expand_as(det_logits)  # (1, L, 4)
+        det_logits = det_logits.masked_fill(~mask.bool(), -1e9)
+        # "~"对布尔张量做按位取反，得到：True 表示要屏蔽的位置，False 表示保留
+        det_preds  = det_logits.argmax(dim=-1).squeeze(0)  # pad 处必然是 0 (keep)
+        corr_preds = corr_logits.argmax(-1).squeeze(0) # (L,)
 
-        # decode 4-way operations
-        tags = model.op_crf.decode(op_logits, mask.bool())[0]  # list of length L
+        # print("Detector prediction",det_preds)
+        # 原文字列表
         chars = list(text)
         out = []
+        i = 0
         
-            
         flag = False
-        index_trun = 0
+        if len(chars) > self.max_length:
+            flag = True
         
-        for i, ch in enumerate(chars):
-            tok_idx = i + 1
-            if tok_idx > len(tags) - 1:
-                flag = True
-                index_trun = i
-                continue
-            # print(tok_idx)
-            op = tags[tok_idx]
-            if op == 0:            # KEEP
-                out.append(ch)
-            elif op == 1:          # REPLACE
-                logits = char_logits[0, tok_idx]
-                cid = logits.argmax().item()
-                new = tokenizer.convert_ids_to_tokens([cid])[0]
-                out.append(new)
-            elif op == 2:          # DELETE
-                continue
-            elif op == 3:          # INSERT
-                logits = char_logits[0, tok_idx]
-                cid = logits.argmax().item()
-                new = tokenizer.convert_ids_to_tokens([cid])[0]
-                out.append(new)
-                out.append(ch)
-         # 处理超过self.max_length的例子的后续，使得就算没法纠正，也可以正常输出
+        # 部分超过上下文长度啦
+        while i < min(len(chars), self.max_length-1):
+            tok_idx = i + 1  # 对应 BERT token 下标，一开始有一个[CLS]呢~
+            op = det_preds[tok_idx].item()
+
+            if op == 0:
+                # keep
+                out.append(chars[i])
+                i += 1
+            elif op == 1:
+                # replace
+                new_id = corr_preds[tok_idx].item()
+                new_tok = tok.convert_ids_to_tokens([new_id])[0]
+                out.append(new_tok)
+                i += 1
+            elif op == 2:
+                # delete: 跳过原字符
+                i += 1
+            elif op == 3:
+                # insert: 在当前位置插入 corr_preds，然后不跳过原字符
+                new_id = corr_preds[tok_idx].item()
+                new_tok = tok.convert_ids_to_tokens([new_id])[0]
+                out.append(new_tok)
+                # 原字符也保留
+                out.append(chars[i])
+                i += 1
+            else:
+                # padding / unknown
+                out.append(chars[i])
+                i += 1
+
+        # 处理超过self.max_length的例子的后续，使得就算没法纠正，也可以正常输出
         if flag == True:
-            result = ''.join(out) + ''.join(chars[index_trun: ])
+            result = ''.join(out) + ''.join(chars[self.max_length-1: ])
         else:
             result = ''.join(out)
         # print(result)

@@ -109,7 +109,7 @@ def visualize_error_distribution(analysis_results: Dict[str, Any], data_type: st
         ax1.text(bar.get_x() + bar.get_width() / 2, yval + 2, int(yval), ha='center', va='bottom')
 
     # ---------- 饼图 ----------
-    explode = [0.03, 0.04, 0.05]
+    explode = [0.03, 0.06, 0.10]
     ax2.pie(values, labels=labels, explode = explode, autopct='%1.1f%%', \
                 startangle=0, shadow=True,\
                     colors=['skyblue', 'lightgreen', 'salmon'])

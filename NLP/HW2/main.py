@@ -15,7 +15,7 @@ from tqdm import tqdm
 # Import modules
 from data_analysis import analyze_data, visualize_error_distribution
 from rule_based import RuleBasedCorrector
-from statistical import StatisticalCorrector
+from statistical import *
 from evaluation import evaluate_performance, print_detailed_metrics
 
 
@@ -46,14 +46,19 @@ def main():
     parser.add_argument(
         '--method',
         type=str,
-        choices=['rule', 'statistical', 'ensemble'],
+        choices=['rule_pos', 'rule_dep', 'statistical', 'ensemble', 'pretrained'],
         default='statistical',
         help='Correction method to use',
     )
     # 巧！根据是否出现决定真假，而不用显示赋予他们True or False！
     # 这里--analyze，如果出现了那么就会被赋值为True！
     parser.add_argument('--analyze', action='store_true', help='Perform data analysis')
-    parser.add_argument('--statistical_method', type=str, default='ml', help='Statistical method to use')
+    parser.add_argument(
+        '--statistical_method', 
+        type=str, 
+        choices = ['ngram', 'ml'],
+        default='ml', 
+        help='Statistical method to use')
     parser.add_argument('--evaluate', action='store_true', help='To choose whether we need evaluation')
     
     args = parser.parse_args()
@@ -70,16 +75,27 @@ def main():
         visualize_error_distribution(analysis_results)
 
     # TODO 2: Initialize corrector based on method
-    # 基于规则的
-    if args.method == 'rule':
+    # 基于规则的额外处理（grammar rules有两种实现）
+    if args.method.find("_") == -1:
+        method = args.method
+    else:
+        method = args.method[0: args.method.find("_")]
+        choice = args.method[args.method.find("_")+1: ]
+    
+    if method == 'rule':
         print("\nInitializing rule-based corrector...")
         corrector = RuleBasedCorrector()
-        corrector.train(train_data)
-    elif args.method == 'statistical':
+        corrector.train(train_data, choice)
+    elif method == 'statistical':
         print("\nInitializing statistical corrector...")
         corrector = StatisticalCorrector(args.statistical_method)
         corrector.train(train_data)
-    elif args.method == 'ensemble':
+    elif method == 'pretrained':
+        print("\nInitializing pretrained model...")
+        model = BertCRFCorrector()
+        corrector = StatisticalCorrector(args.statistical_method)
+        corrector._train_ml_model(model, train_data + test_data)
+    elif method == 'ensemble':
         print("\nInitializing ensemble corrector...")
         # TODO start
         # Implement ensemble method that combines rule-based and statistical methods
@@ -94,18 +110,28 @@ def main():
         # Or you could use different methods for different types of errors
         # TODO end
 
+
     # TODO 3: Evaluate on test data
     if args.evaluate:
         print("\nEvaluating on test data...")
         predictions = []
+        test_data = test_data
         for sample in tqdm(test_data, ncols=100):
             source = sample['source']
-            corrected = corrector.correct(source)
+            corrected = str()
+            if method == 'pretrained':
+                corrected = corrector._correct_with_ml(model, source)
+            else:
+                if args.method.find("_") != -1:
+                    corrected = corrector.correct(source, choice)
+                else:
+                    corrected = corrector.correct(source)
             """
             print("==原来的句子:", source,"\n")
             print("==更改过后的句子:", corrected,"\n")
             print("------------------")
             """
+            
             predictions.append(
                 {'source': source, 'prediction': corrected, 'target': sample['target'], 'label': sample['label']}
             )

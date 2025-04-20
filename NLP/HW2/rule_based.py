@@ -10,6 +10,8 @@ import re
 import json
 from typing import Dict, List, Tuple, Any, Set
 from collections import defaultdict
+import Levenshtein
+
 
 # Try to import optional dependencies
 try:
@@ -18,6 +20,35 @@ try:
 except ImportError:
     JIEBA_AVAILABLE = False
     print("Warning: jieba not available. Some features will be disabled.")
+
+
+# --------------------- 依存句法分析 --------------------- # 
+from ltp import LTP
+# 成分句法分析已经被移除，以下代码使用依存句法分析
+# 但是依存句法分析必须用(head, label)来额外训练一个model
+# 训练：统计(head -> current word)之间的关系label
+# 测试：难道要对每一个
+class LTPDependencyParser:
+    def __init__(self):
+        self.ltp = LTP("LTP/base")
+
+    def get_dependency_tags(self, text: str) -> List[str]:
+        output = self.ltp.pipeline([text], tasks=["cws", "dep"], return_dict=True)
+        # 做分词，example: ['他', '的', '回答', '很', '精彩', '。']
+        words = output["cws"][0]
+        # 做依存句法分析，example: {'head': [3, 1, 5, 5, 0, 5], 'label': ['ATT', 'RAD', 'SBV', 'ADV', 'HED', 'WP']}
+        # - `head` 是表示每个词的“父节点”的索引
+        # - `label` 是依存关系的标签，如 `'ATT'`（属性），`'SBV'`（主谓关系），`'HED'`（谓词）
+        head = output["dep"][0]['head'] # 根节点
+        rels = output["dep"][0]['label']  # 直接是每个词的依存关系标签，如 ['ATT', 'SBV', 'ADV'...]
+        
+        # 将词性标签展开为字符级标签
+        labels = []
+        for word, head, rel in zip(words, head, rels):
+            labels.append((head * len(word), rel * len(word)))
+        if len(labels) != len(text):
+            raise ValueError("标签长度与字符长度不一致")
+        return labels
 
 
 class RuleBasedCorrector:
@@ -38,8 +69,11 @@ class RuleBasedCorrector:
         self.punctuation_rules = {}
         
         # Grammar rules
-        # 语法规则
-        self.grammar_rules = {}
+        # 语法规则，存储做pos时的结果
+        self.grammar_rules = {} 
+        # 依存句法分析    
+        self.dependency_parser = LTPDependencyParser()     
+        
         
         # Common word pairs (for word-level correction)
         # 常见【词】被混淆了，ab:ac, ab经常被混淆成ac
@@ -51,8 +85,7 @@ class RuleBasedCorrector:
         # or else
 
 
-
-    def train(self, train_data: List[Dict[str, Any]]) -> None:
+    def train(self, train_data: List[Dict[str, Any]], grammar = "pos") -> None:
         """
         【Extract rules】 from the training data.
 
@@ -65,8 +98,14 @@ class RuleBasedCorrector:
         
         self._extract_confusion_pairs(train_data)
         self._extract_punctuation_rules(train_data)
-        self._extract_grammar_rules(train_data)
+        
+        if grammar == "pos":
+            self._extract_grammar_rules_pos(train_data)
+        elif grammar == "dep":
+            self._extract_grammar_rules_dep(train_data)
+            
         self._extract_word_confusion(train_data)
+
 
     def _extract_confusion_pairs(self, train_data: List[Dict[str, Any]]) -> None:
         """
@@ -102,15 +141,18 @@ class RuleBasedCorrector:
         filtered_pairs = {}
         for wrong_char, corrections in self.confusion_pairs.items():
             # Keep only corrections that appear at least twice
-            common_corrections = {correct: count for correct, count in corrections.items() if count >= 2}
+            common_corrections = {correct: count for correct, count in corrections.items() if count >= 5}
             if common_corrections:
                 filtered_pairs[wrong_char] = common_corrections
 
         # print(filtered_pairs)
+        
         self.confusion_pairs = filtered_pairs
+        print(f"\n[Character Grammar] 规则数量: {len(self.confusion_pairs)}")
+        print(self.confusion_pairs)
+
 
     # 【补充思考到报告中，使用/不使用Levenshtein还是有很大差别的】
-    # 0.0013 -> 0.0102
     def _extract_punctuation_rules(self, train_data: List[Dict[str, Any]]) -> None:
         """
         Extract 【punctuation correction】 rules from the training data.
@@ -129,7 +171,7 @@ class RuleBasedCorrector:
         punctuation_pairs = defaultdict(lambda: defaultdict(int))
 
         for sample in train_data:
-            if sample['label'] != 1:
+            if sample['label'] != 1: # 只对error分析
                 continue
 
             src = sample['source']
@@ -137,7 +179,6 @@ class RuleBasedCorrector:
 
             # 使用 Levenshtein 分析编辑操作（替换/插入/删除）
             try:
-                import Levenshtein
                 edits = Levenshtein.opcodes(src, tgt)
             except Exception as e:
                 continue
@@ -158,56 +199,97 @@ class RuleBasedCorrector:
             for wrong_punc, replacements in punctuation_pairs.items()
             if any(count >= 2 for count in replacements.values())
         }
+        print(f"\n[Punctation Grammar] 规则数量: {len(self.punctuation_rules)}")
         print(self.punctuation_rules)
         
+    # 法一：属于基于词性（POS）的语法模式抽取方法
+    # 规则格式：
+    # (错误字, 左词性, 当前词性, 右词性) → 正确字
     
-    # F0.5 Score: 0.0069。引入jieba好像还没有没引入时候效果好呀。之前是0.0102
-    # 【补充思考到报告中】
-    def _extract_grammar_rules(self, train_data: List[Dict[str, Any]]) -> None:
-        """
-        Extract 【grammar correction rules】 from the training data.
-
-        Args:
-            train_data: List of dictionaries containing the training data.
-        """
-        # TODO
-        """
-        使用词性（POS）模式从训练数据中提取通用语法纠错规则。
-
-        规则格式：
-            (错误字, 左词性, 当前词性, 右词性) → 正确字
-        """
+    # 法二：使用 Levenshtein.opcodes(src, tgt) 来对齐 source 和 target
+    #       并结合 成分句法分析（constituent parsing） 提取语法错误规则
+    # 不能只匹配长度一样的内容，训练集里边没有这样的样本。。
+    # -- LTP库：现在的库已经不支持了
+    # -- Transformer：huggingface中实现依存句法分析的model
+    
+    def _extract_grammar_rules_dep(self, train_data: List[Dict[str, Any]]) -> None:
         
-        import jieba.posseg as pseg
-        pos_grammar_rules = defaultdict(lambda: defaultdict(int))
-        
+        grammar_rules = defaultdict(lambda: defaultdict(int))
+        parser = self.dependency_parser
+        self.count_limit = 5
+
         for sample in train_data:
             if sample['label'] != 1:
                 continue
-
             src = sample['source']
             tgt = sample['target']
+            try:
+                dep_labels = parser.get_dependency_tags(src)
+            except Exception as e:
+                print("依存分析失败：", e)
+                continue
+            if len(dep_labels) != len(src):
+                print("长度不一致，跳过")
+                continue
+            
+            try:
+                edits = Levenshtein.opcodes(src, tgt)
+            except Exception:
+                continue
+            
+            for tag, i1, i2, j1, j2 in edits:
+                if tag == 'replace':
+                    for si, ti in zip(range(i1, i2), range(j1, j2)):
+                        if si >= len(src) or ti >= len(tgt):
+                            continue
+                        s_char = src[si]
+                        t_char = tgt[ti]
+                        label = dep_labels[si]
+                        pattern = (s_char, label)
+                        grammar_rules[pattern][t_char] += 1
 
+        self.grammar_rules = {
+            pattern: {
+                correct: count for correct, count in candidates.items() if count >= 5
+            }
+            for pattern, candidates in grammar_rules.items()
+            if any(count >= self.count_limit for count in candidates.values())
+        }
+
+        print(f"\n[Dependency Grammar] 规则数量: {len(self.grammar_rules)}")
+        print(f"Config: {self.count_limit}")
+        print(self.grammar_rules)
+        
+
+    # 当前设置（不计算character confusion)
+    # 最优解 F0.5 - 0.2175
+    def _extract_grammar_rules_pos(self, train_data: List[Dict[str, Any]]) -> None:
+        import jieba.posseg as pseg
+        self.length = 2
+        self.count_limit = 10
+        pos_grammar_rules = defaultdict(lambda: defaultdict(int))
+        for sample in train_data:
+            if sample['label'] != 1:
+                continue
+            src = sample['source']
+            tgt = sample['target']
             # 仅考虑长度相同（替换类错误）
             if len(src) != len(tgt):
                 continue
-
             # 词性标注
             words = list(pseg.cut(src))
             char_pos = []
             for word, flag in words:
                 char_pos.extend([flag] * len(word))
-
             if len(char_pos) != len(src):
                 continue  # 保护性跳过
-
             for i, (s_char, t_char) in enumerate(zip(src, tgt)):
                 if s_char == t_char:
                     continue  # 无需纠错
 
-                left_pos = char_pos[i - 1] if i > 0 else 'NONE'
+                left_pos = char_pos[i - self.length] if i > 0 else 'NONE'
                 mid_pos = char_pos[i]
-                right_pos = char_pos[i + 1] if i < len(src) - 1 else 'NONE'
+                right_pos = char_pos[i + self.length] if i < len(src) - self.length else 'NONE'
 
                 pattern = (s_char, left_pos, mid_pos, right_pos)
                 pos_grammar_rules[pattern][t_char] += 1
@@ -217,16 +299,15 @@ class RuleBasedCorrector:
             pattern: {
                 correct_char: count
                 for correct_char, count in candidates.items()
-                if count >= 10
+                if count >= self.count_limit
             }
             for pattern, candidates in pos_grammar_rules.items()
-            if any(count >= 10 for count in candidates.values())
+            if any(count >= self.count_limit for count in candidates.values())
         }
-
+        print(f"\n[POS Grammar] 提取数量: {len(self.word_confusion)}")
+        print(f"[Config -] context length: {self.length},count limit: {self.count_limit} ")
         print(self.grammar_rules)
 
-         
-        
 
     def _extract_word_confusion(self, train_data: List[Dict[str, Any]]) -> None:
         """
@@ -243,14 +324,32 @@ class RuleBasedCorrector:
         word_pairs = defaultdict(lambda: defaultdict(int))
 
         for sample in train_data:
-            if sample['label'] == 1:
-                src, tgt = sample['source'], sample['target']
-                src_words = list(jieba.cut(src))
-                tgt_words = list(jieba.cut(tgt))
+            if sample['label'] != 1:
+                continue
 
-                for sw, tw in zip(src_words, tgt_words):
-                    if sw != tw and abs(len(sw) - len(tw)) <= 2:
-                        word_pairs[sw][tw] += 1
+            src, tgt = sample['source'], sample['target']
+            src_words = list(jieba.cut(src))
+            tgt_words = list(jieba.cut(tgt))
+
+            try:
+                ops = Levenshtein.opcodes(' '.join(src_words), ' '.join(tgt_words))
+            except Exception as e:
+                print("Levenshtein alignment failed:", e)
+                continue
+
+            src_ptr, tgt_ptr = 0, 0
+            for tag, i1, i2, j1, j2 in ops:
+                # Convert i1/i2/j1/j2 from char-based to word-level span index
+                src_segment = src_words[src_ptr:src_ptr + (i2 - i1)]
+                tgt_segment = tgt_words[tgt_ptr:tgt_ptr + (j2 - j1)]
+
+                if tag == 'replace':
+                    for sw, tw in zip(src_segment, tgt_segment):
+                        if sw != tw and abs(len(sw) - len(tw)) <= 2:
+                            word_pairs[sw][tw] += 1
+
+                src_ptr += (i2 - i1)
+                tgt_ptr += (j2 - j1)
 
         self.word_confusion = {
             w: {tw: cnt for tw, cnt in corrections.items() if cnt >= 2}
@@ -258,8 +357,11 @@ class RuleBasedCorrector:
             if any(cnt >= 2 for cnt in corrections.values())
         }
 
+        print(f"\n[Word Confusion] 提取规则数量: {len(self.word_confusion)}")
+        print(self.word_confusion)
 
-    def correct(self, text: str) -> str:
+
+    def correct(self, text: str, choice: str) -> str:
         """
         【Apply】 rule-based correction to the input text.
 
@@ -271,9 +373,10 @@ class RuleBasedCorrector:
         """
         # Apply different correction rules in sequence
         # TODO 对应规则方法的实现，完成修正部分（可以参考如下的方法，或者自行设计）
+        
         corrected = self._correct_punctuation(text)
-        corrected = self._correct_confusion_chars(corrected)
-        corrected = self._correct_grammar(corrected)
+        corrected = self._correct_grammar(corrected, choice)
+        # corrected = self._correct_confusion_chars(corrected)    
         corrected = self._correct_word_confusion(corrected)
 
         return corrected
@@ -298,6 +401,7 @@ class RuleBasedCorrector:
             else:
                 corrected.append(ch)
         return ''.join(corrected)
+
 
     def _correct_confusion_chars(self, text: str) -> str:
         """
@@ -364,10 +468,10 @@ class RuleBasedCorrector:
                 # This is a placeholder for more sophisticated rules
                 elif self.confusion_pairs[char][correct_char] > 5:  # Arbitrary threshold
                     corrected_text[i] = correct_char
-
         return ''.join(corrected_text)
 
-    def _correct_grammar(self, text: str) -> str:
+
+    def _correct_grammar(self, text: str, choice="pos") -> str:
         """
         Correct grammar errors in the text.
 
@@ -378,36 +482,53 @@ class RuleBasedCorrector:
             Text with corrected grammar.
         """
         # TODO
-        if not self.grammar_rules:
-            return text
         
-        try:
+        if choice == "dep":
+            try:
+                dep_labels = self.dependency_parser.get_dependency_tags(text)
+            except Exception as e:
+                print("依存分析失败：", e)
+                return text
+
+            corrected = list(text)
+
+            for i, (char, dep) in enumerate(zip(text, dep_labels)):
+                pattern = (char, dep)
+                if pattern in self.grammar_rules:
+                    candidates = self.grammar_rules[pattern]
+                    if candidates:
+                        # 选择频率最高的替换字符
+                        best = max(candidates.items(), key=lambda x: x[1])[0]
+                        if best != char:
+                            corrected[i] = best
+            return ''.join(corrected)
+    
+        elif choice == "pos":
             import jieba.posseg as pseg
-        except ImportError:
-            print("jieba.posseg not available, skipping POS-based grammar correction.")
-            return text
+            # 获取每个字符的词性（按词扩展）
+            words = list(pseg.cut(text))
+            char_pos = []
+            for word, flag in words:
+                char_pos.extend([flag] * len(word))
 
-        words = list(pseg.cut(text))
-        char_pos = []
-        for word, flag in words:
-            char_pos.extend([flag] * len(word))
+            if len(char_pos) != len(text):
+                # 保护性判断
+                return text
 
-        if len(char_pos) != len(text):
-            return text  
-        corrected = list(text)
-        for i, char in enumerate(text):
-            left_pos = char_pos[i - 1] if i > 0 else 'NONE'
-            mid_pos = char_pos[i]
-            right_pos = char_pos[i + 1] if i < len(text) - 1 else 'NONE'
-            pattern = (char, left_pos, mid_pos, right_pos)
-            
-            if pattern in self.grammar_rules:
-                # 获取最可能的替换字
-                replacements = self.grammar_rules[pattern]
-                best_replacement = max(replacements.items(), key=lambda x: x[1])[0]
-                corrected[i] = best_replacement
+            corrected = list(text)
+            for i, char in enumerate(text):
+                left_pos = char_pos[i - self.length] if i > 0 else 'NONE'
+                mid_pos = char_pos[i]
+                right_pos = char_pos[i + self.length] if i < len(text) - self.length else 'NONE'
 
-        return ''.join(corrected)
+                pattern = (char, left_pos, mid_pos, right_pos)
+                if pattern in self.grammar_rules:
+                    candidates = self.grammar_rules[pattern]
+                    if candidates:
+                        best = max(candidates.items(), key=lambda x: x[1])[0]
+                        if best != char:
+                            corrected[i] = best
+            return ''.join(corrected)
 
 
     def _correct_word_confusion(self, text: str) -> str:
@@ -436,4 +557,12 @@ class RuleBasedCorrector:
                 corrected_words.append(w)
 
         return ''.join(corrected_words)
+
+
+if __name__ == "__main__":
+    parser = LTPDependencyParser()
+    labels = parser.get_dependency_tags("他的回答很精彩。")
+    print(labels)
+
+
 
