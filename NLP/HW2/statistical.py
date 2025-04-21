@@ -146,7 +146,7 @@ class CharCorrectionHead(nn.Module):
                  dropout: float = 0.1, lstm_layers: int = 1):
         super().__init__()
         
-        # 1) 两层 MLP
+        # -- 两层 MLP -- #
         self.mlp = nn.Sequential(
             nn.Linear(hidden_size, hidden_size),
             nn.LayerNorm(hidden_size),
@@ -157,7 +157,7 @@ class CharCorrectionHead(nn.Module):
             nn.GELU(),
             nn.Dropout(dropout),
         )
-        # 2) BiLSTM
+        # -- BiLSTM -- #
         self.bilstm = nn.LSTM(
             input_size=hidden_size,
             hidden_size=hidden_size // 2,
@@ -167,7 +167,7 @@ class CharCorrectionHead(nn.Module):
             dropout=dropout if lstm_layers > 1 else 0.0
         )
         
-        # 3) 最终投到 vocab_size
+        # -- 最终投到 vocab_size -- #
         self.out = nn.Linear(hidden_size, vocab_size)
         
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -190,16 +190,16 @@ class BertCRFCorrector(nn.Module):
                  lstm_layers: int = 1):
         
         super().__init__()
-        # 1) BERT 编码器
+        # -- BERT 编码器 -- # 
         self.bert = BertModel.from_pretrained(model_name)
         self.drop = nn.Dropout(dropout)
 
-        # 2) 4-way 操作 CRF
+        # -- 4-way 操作 CRF -- #
         self.op_fc  = nn.Linear(hidden, 4)
         self.op_crf = CRF(num_tags=4, batch_first=True)
 
-        # 3) 字符预测头
-        # 3) 字符纠正分支 —— 全部放到 self.char_fc
+        # -- 字符预测头 -- #
+        # -- 字符纠正分支 —— 全部放到 self.char_fc -- #
         self.char_fc = CharCorrectionHead(
             hidden_size=hidden,
             vocab_size=self.bert.config.vocab_size,
@@ -228,15 +228,15 @@ class BertCRFCorrector(nn.Module):
           char_logits– (B, L, V) 字符预测 logits
         """
         
-        # --- 1) BERT 编码 ---
+        # --- BERT 编码 ---
         bert_out = self.bert(input_ids=ids, attention_mask=mask)
         seq_out  = bert_out.last_hidden_state   # (B, L, H)
         seq_out  = self.drop(seq_out)
 
-        # 强制把 mask 转成 BoolTensor
+        # BUG 强制把 mask 转成 BoolTensor
         bool_mask = mask.bool()                 # (B, L)
 
-        # --- 2) 操作 CRF 前向 ---
+        # --- 操作 CRF 前向 ---
         op_logits = self.op_fc(seq_out)         # (B, L, 4)
         loss_op = None
         if op_labels is not None:
@@ -245,11 +245,10 @@ class BertCRFCorrector(nn.Module):
             tags[tags < 0]  = 0
             tags[tags >= 4] = 0
             
-            # 计算 CRF log-likelihood 并取负
             ll = self.op_crf(op_logits, tags, mask=bool_mask)
             loss_op = -ll.mean()
 
-        # --- 3) 字符预测头 & 损失 ---
+        # --- 字符预测头 & 损失 ---
         char_logits = self.char_fc(seq_out)     # (B, L, V)
         loss_char = None
         if corr_labels is not None:
@@ -420,10 +419,9 @@ class StatisticalCorrector:
         
         tk     = BertTokenizer.from_pretrained('bert-base-chinese')
 
-        # 1) 划分 train/val
         train_d, val_d = train_test_split(train_data, test_size=0.1, random_state=42)
 
-        # 2) 统计每个句子中错误操作的数量，作为采样权重
+        # 采样权重
         sample_weights = []
         for sample in train_d:
             src, tgt = sample['source'], sample['target']
@@ -445,7 +443,7 @@ class StatisticalCorrector:
         train_loader = DataLoader(
             train_ds,
             batch_size=batch_size,
-            sampler=sampler,   # 用 sampler 代替 shuffle
+            sampler=sampler,   # 用 sampler 代替 shuffle !!!!
             drop_last=False,
             pin_memory=True,
             num_workers=2
@@ -487,7 +485,7 @@ class StatisticalCorrector:
                 tot_ch += loss_char.item()
                 # print("\n Loss Operation", tot_op)
                 # print("\n Loss Character", tot_ch)
-            print(f"Ep{ep+1} ▶ op_loss={tot_op/len(train_loader):.4f}  char_loss={tot_ch/len(train_loader):.4f}")
+            print(f"Ep{ep+1} op_loss={tot_op/len(train_loader):.4f}  char_loss={tot_ch/len(train_loader):.4f}")
 
             # 验证
             model.eval()
@@ -503,7 +501,7 @@ class StatisticalCorrector:
                         batch['corr_labels']
                     )
                     vop += loss_op.item()
-            print(f" Val ▶ op_loss={vop/len(val_loader):.4f}")
+            print(f" Val op_loss={vop/len(val_loader):.4f}")
         
 
     def correct(self, text: str) -> str:

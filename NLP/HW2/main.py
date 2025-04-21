@@ -94,7 +94,7 @@ def main():
         print("\nInitializing pretrained model...")
         model = BertCRFCorrector()
         corrector = StatisticalCorrector(args.statistical_method)
-        corrector._train_ml_model(model, train_data + test_data)
+        corrector._train_ml_model(model, train_data)
     elif method == 'ensemble':
         print("\nInitializing ensemble corrector...")
         # TODO start
